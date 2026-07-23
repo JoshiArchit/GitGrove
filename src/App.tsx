@@ -1,13 +1,25 @@
 import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
 import { useState } from "react";
 import "./App.css";
+import type { RepoEntry } from "./types/repo.types";
 
 function App() {
-  const [value, setValue] = useState<string>("None");
+  let rootPath: string = "";
+  const [repoList, setRepoList] = useState<RepoEntry[]>([]);
 
-  async function testInvoke() {
-    const result = await invoke<string>("get_date_time");
-    setValue(result);
+  async function testRepoListFetch() {
+    const result = await invoke<RepoEntry[]>("scan_repos", {
+      rootDirectory: rootPath,
+    });
+    setRepoList(result);
+    console.log(repoList);
+  }
+
+  async function getRootDirectoryPath() {
+    rootPath = (await open({ directory: true, multiple: false })) ?? "";
+    console.log("Root Path", rootPath);
+    await testRepoListFetch();
   }
 
   return (
@@ -15,10 +27,18 @@ function App() {
       <div className="flex flex-col text-cyan-500">
         <span className="text-xl">Hey Archit</span>
         <span className="text-3xl">Welcome to GitGrove</span>
-        <button className="bg-amber-200 px-4 py-2" onClick={testInvoke}>
-          Test invoke
+
+        <button
+          className="bg-blue-300 px-4 py-2"
+          onClick={getRootDirectoryPath}
+        >
+          Get Repos
         </button>
-        <span>{value}</span>
+        <ul>
+          {repoList.map((repo) => {
+            return <li key={repo.name}>{repo.name}</li>;
+          })}
+        </ul>
       </div>
     </main>
   );

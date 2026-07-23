@@ -8,14 +8,26 @@
 
 use walkdir::WalkDir;
 
+// TODO: Make this a user enforced list, give them the choice to exclude directories.
+// Keep these are the suggested defaults, add pycache and other stack agnostic gitignored directories (maybe look at templates for gitignore)
 const SKIP_DIRS: &[&str] = &["node_modules", "dist", "build", "target", ".next"];
+
+/// A discovered git repository, returned to the frontend for display and
+/// as the canonical identifier for subsequent per-repo commands.
+#[derive(serde::Serialize)]
+pub struct RepoEntry {
+    /// Absolute path on disk — the identifier passed to other commands.
+    pub path: String,
+    /// Display-only folder name, derived from `path`.
+    pub name: String,
+}
 
 /**
  * Recursively traverses the root folder to fetch git repositories using the walkdir crate.
  */
 #[tauri::command]
-pub fn scan_repos(root_directory: String) -> Vec<String> {
-    let mut repos: Vec<String> = Vec::new();
+pub fn scan_repos(root_directory: String) -> Vec<RepoEntry> {
+    let mut repos: Vec<RepoEntry> = Vec::new();
     let mut iterator = WalkDir::new(root_directory).into_iter();
 
     while let Some(entry) = iterator.next() {
@@ -33,7 +45,16 @@ pub fn scan_repos(root_directory: String) -> Vec<String> {
         let path = entry.path();
 
         if (path.join(".git")).exists() {
-            repos.push(path.to_string_lossy().to_string());
+            let name = path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown")
+                .to_string();
+
+            repos.push(RepoEntry {
+                path: path.to_string_lossy().to_string(),
+                name,
+            });
             iterator.skip_current_dir(); // Skips the current directory since repo path has already been determined
             continue;
         }
@@ -59,19 +80,36 @@ mod tests {
     #[test]
     fn finds_repos_in_nested_folders() {
         let tmp = tempfile::tempdir().unwrap();
-        // Top level repos
         std::fs::create_dir_all(tmp.path().join("repo-a/.git")).unwrap();
         std::fs::create_dir_all(tmp.path().join("nested/repo-b/.git")).unwrap();
         std::fs::create_dir_all(tmp.path().join("nested/node_modules/fake-pkg/.git")).unwrap();
-
-        // Nested repos
         std::fs::create_dir_all(tmp.path().join("parent-folder/repo-c/.git")).unwrap();
         std::fs::create_dir_all(tmp.path().join("parent-folder/repo-c/dist/.git")).unwrap();
 
         let repos = scan_repos(tmp.path().to_string_lossy().to_string());
 
         assert_eq!(repos.len(), 3);
-        // tmp dir auto-deletes when it goes out of scope
+
+        let repo_a = repos
+            .iter()
+            .find(|r| r.name == "repo-a")
+            .expect("repo-a not found");
+        assert_eq!(
+            repo_a.path,
+            tmp.path().join("repo-a").to_string_lossy().to_string()
+        );
+
+        let repo_c = repos
+            .iter()
+            .find(|r| r.name == "repo-c")
+            .expect("repo-c not found");
+        assert_eq!(
+            repo_c.path,
+            tmp.path()
+                .join("parent-folder/repo-c")
+                .to_string_lossy()
+                .to_string()
+        );
     }
 
     #[test]

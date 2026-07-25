@@ -14,8 +14,7 @@ function App() {
       <div className="absolute inset-y-2 left-2 z-10">
         <Sidebar setActiveRepo={setActiveRepo} />
       </div>
-      <div className="h-full w-full rounded-xl bg-gray-950">
-        <span className="text-white">{activeRepo?.path}</span>
+      <div className="h-full w-full min-w-0 rounded-xl bg-gray-950">
         <ContributionGraph selectedRepo={activeRepo} />
       </div>
     </main>

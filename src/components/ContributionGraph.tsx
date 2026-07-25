@@ -42,7 +42,10 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
   // Sets up the graph and disposes on unmount
   useEffect(() => {
     if (!graphRef.current) return;
-    chartRef.current = echarts.init(graphRef.current);
+    chartRef.current = echarts.init(graphRef.current, undefined, {
+      width: 780,
+      height: 140,
+    });
     return () => {
       chartRef.current?.dispose();
     };
@@ -61,6 +64,8 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
 
     const options: EChartsOption = {
       tooltip: {
+        confine: true,
+        appendTo: () => document.body,
         formatter: (params: any) => {
           const date: string = params.value[0];
           const byAuthor = contributions.contributions[date]?.by_author ?? {};
@@ -117,11 +122,12 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
   return (
     <aside
       id="contributions-graph"
-      className="flex w-full flex-col items-center justify-center gap-2 rounded-lg bg-gray-900 p-4"
+      className="flex w-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg bg-gray-900 p-4"
     >
       <span className="text-white">Contribution Graph</span>
-
-      <div ref={graphRef} className="h-52 w-195" />
+      <div className="w-full min-w-0 overflow-x-auto overflow-y-hidden">
+        <div ref={graphRef} className="mx-auto h-36 w-195 shrink-0" />
+      </div>
     </aside>
   );
 };

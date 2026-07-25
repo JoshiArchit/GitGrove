@@ -44,7 +44,7 @@ const Sidebar = ({ setActiveRepo }: SidebarProps) => {
   return (
     <aside
       id="sidebar"
-      className={`${collapsed ? "w-sidebar-collapsed" : "w-64 lg:w-[20vw]"} z-10 box-border flex h-full flex-col gap-3 rounded-xl bg-gray-900 p-4 text-white transition-all duration-300`}
+      className={`${collapsed ? "w-sidebar-collapsed" : "w-64 lg:w-[20vw]"} z-10 box-border flex h-full flex-col gap-3 rounded-xl bg-gray-900 p-4 text-white shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-all duration-300`}
     >
       <section
         id="title"
@@ -69,10 +69,14 @@ const Sidebar = ({ setActiveRepo }: SidebarProps) => {
         id="sidebar-action-buttons"
         className={`flex w-full flex-col items-center justify-center gap-4 ${collapsed ? "items-center" : "items-start"}`}
       >
-        <PanelRight
+        <button
           onClick={() => setCollapsed(false)}
-          className={collapsed ? "" : "hidden"}
-        />
+          title="Expand Menu"
+          className={`flex items-center justify-center rounded-lg border border-transparent p-2 transition-all duration-300 hover:border-gray-400 hover:bg-gray-700 ${collapsed ? "" : "hidden"}`}
+        >
+          <PanelRight />
+        </button>
+
         <button
           onClick={getRootDirectoryPath}
           title="Scan for Repos"

@@ -12,7 +12,7 @@ function App() {
       <div className="w-sidebar-collapsed shrink-0" />{" "}
       {/* reserves collapsed-width space */}
       <div className="absolute inset-y-2 left-2 z-10">
-        <Sidebar setActiveRepo={setActiveRepo} />
+        <Sidebar setActiveRepo={setActiveRepo} activeRepo={activeRepo} />
       </div>
       <div className="h-full w-full min-w-0 rounded-xl bg-gray-950">
         <ContributionGraph selectedRepo={activeRepo} />

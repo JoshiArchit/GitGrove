@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+@theme {
+  --spacing-sidebar-collapsed: 64px;
+}

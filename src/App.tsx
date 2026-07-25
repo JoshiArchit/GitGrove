@@ -1,45 +1,19 @@
-import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
 import { useState } from "react";
 import "./App.css";
+import Sidebar from "./components/Sidebar";
 import type { RepoEntry } from "./types/repo.types";
 
 function App() {
-  let rootPath: string = "";
-  const [repoList, setRepoList] = useState<RepoEntry[]>([]);
-
-  async function testRepoListFetch() {
-    const result = await invoke<RepoEntry[]>("scan_repos", {
-      rootDirectory: rootPath,
-    });
-    setRepoList(result);
-    console.log(repoList);
-  }
-
-  async function getRootDirectoryPath() {
-    rootPath = (await open({ directory: true, multiple: false })) ?? "";
-    console.log("Root Path", rootPath);
-    await testRepoListFetch();
-  }
+  const [activeRepo, setActiveRepo] = useState<RepoEntry>();
 
   return (
-    <main className="bg-black">
-      <div className="flex flex-col text-cyan-500">
-        <span className="text-xl">Hey Archit</span>
-        <span className="text-3xl">Welcome to GitGrove</span>
-
-        <button
-          className="bg-blue-300 px-4 py-2"
-          onClick={getRootDirectoryPath}
-        >
-          Get Repos
-        </button>
-        <ul>
-          {repoList.map((repo) => {
-            return <li key={repo.name}>{repo.name}</li>;
-          })}
-        </ul>
+    <main className="relative flex h-screen w-screen gap-4 bg-black p-2 font-mono">
+      <div className="w-sidebar-collapsed shrink-0" />{" "}
+      {/* reserves collapsed-width space */}
+      <div className="absolute inset-y-2 left-2 z-10">
+        <Sidebar setActiveRepo={setActiveRepo} />
       </div>
+      <div className="h-full w-full rounded-xl bg-gray-950"></div>
     </main>
   );
 }

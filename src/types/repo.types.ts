@@ -8,3 +8,17 @@ export type RepoEntry = {
   /** Display-only folder name, derived from `path`. */
   name: string;
 };
+
+/**
+ * A collection of contributions, grouped by author email.
+ */
+export type Contributions = {
+  contributions: Record<string, AuthorContributions>;
+};
+
+/**
+ * Contributions by a single author, grouped by email.
+ */
+export type AuthorContributions = {
+  by_author: Record<string, number>;
+};

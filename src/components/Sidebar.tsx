@@ -15,26 +15,25 @@ type SidebarProps = {
 const Sidebar = ({ setActiveRepo }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
   const [repoList, setRepoList] = useState<RepoEntry[]>([]);
+  const [rootPath, setRootPath] = useState<string>("");
 
-  let rootPath: string = "";
-
-  async function getRepoList() {
+  async function getRepoList(path: string) {
     const result = await invoke<RepoEntry[]>("scan_repos", {
-      rootDirectory: rootPath,
+      rootDirectory: path,
     });
     setRepoList(result);
-    console.log(repoList);
   }
 
   async function getRootDirectoryPath() {
-    rootPath =
+    const path =
       (await open({
         directory: true,
         multiple: false,
         title: "Select root folder",
       })) ?? "";
 
-    await getRepoList();
+    setRootPath(path);
+    await getRepoList(path);
   }
 
   function handleSetActiveRepo(repo: RepoEntry) {

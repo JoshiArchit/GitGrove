@@ -6,35 +6,35 @@ import { RepoEntry } from "../types/repo.types";
 
 type SidebarProps = {
   setActiveRepo: (repo: RepoEntry) => void;
+  activeRepo: RepoEntry | undefined;
 };
 
 /**
  * A sidebar component that displays a list of git repositories, a button to scan a root directory and selecting a repository to view its details.
  * @returns The rendered sidebar component.
  */
-const Sidebar = ({ setActiveRepo }: SidebarProps) => {
+const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
   const [repoList, setRepoList] = useState<RepoEntry[]>([]);
+  const [rootPath, setRootPath] = useState<string>("");
 
-  let rootPath: string = "";
-
-  async function getRepoList() {
+  async function getRepoList(path: string) {
     const result = await invoke<RepoEntry[]>("scan_repos", {
-      rootDirectory: rootPath,
+      rootDirectory: path,
     });
     setRepoList(result);
-    console.log(repoList);
   }
 
   async function getRootDirectoryPath() {
-    rootPath =
+    const path =
       (await open({
         directory: true,
         multiple: false,
         title: "Select root folder",
       })) ?? "";
 
-    await getRepoList();
+    setRootPath(path);
+    await getRepoList(path);
   }
 
   function handleSetActiveRepo(repo: RepoEntry) {
@@ -107,14 +107,14 @@ const Sidebar = ({ setActiveRepo }: SidebarProps) => {
       {!collapsed && (
         <section
           id="sidebar-repo-list"
-          className="min-h-0 flex-1 scrollbar-thin scrollbar-thumb-blue-300 overflow-y-auto transition-all duration-300"
+          className="min-h-0 flex-1 scrollbar-auto scrollbar-thumb-gray-700 scrollbar-track-gray-500 scrollbar-gutter-auto overflow-y-auto transition-all duration-300"
         >
           <ul className="list-none space-y-2">
             {repoList.map((repo) => {
               return (
                 <li
                   key={repo.name}
-                  className="transition-color hover: cursor-pointer rounded-lg border border-transparent px-2 text-sm duration-300 hover:bg-blue-600"
+                  className={`transition-color hover: cursor-pointer rounded-lg border border-transparent px-4 py-2 text-sm duration-300 hover:bg-gray-600 ${activeRepo?.name === repo.name ? "bg-blue-600" : ""}`}
 
                   onClick={() => handleSetActiveRepo(repo)}
                 >

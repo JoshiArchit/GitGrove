@@ -8,3 +8,10 @@ export type RepoEntry = {
   /** Display-only folder name, derived from `path`. */
   name: string;
 };
+
+/**
+ * A collection of contributions, grouped by date.
+ */
+export type Contributions = {
+  contributions: Record<string, number>;
+};

@@ -95,6 +95,7 @@ fn get_languages(repo_path: &str, excluded: Option<Vec<String>>) -> HashMap<Stri
         "*.toml".to_string(),
         "*.md".to_string(),
         "*.txt".to_string(),
+        "*.svg".to_string(),
     ];
     let excluded = excluded.unwrap_or(default_excluded);
     let excluded_refs: Vec<&str> = excluded.iter().map(|s| s.as_str()).collect();

@@ -42,7 +42,7 @@ const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
   }
 
   return (
-    <aside
+    <div
       id="sidebar"
       className={`${collapsed ? "w-sidebar-collapsed" : "w-64 lg:w-[20vw]"} z-10 box-border flex h-full flex-col gap-3 rounded-xl bg-gray-900 p-4 text-white shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-all duration-300`}
     >
@@ -125,7 +125,7 @@ const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
           </ul>
         </section>
       )}
-    </aside>
+    </div>
   );
 };
 

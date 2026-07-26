@@ -117,7 +117,7 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
   }, [contributions]);
 
   return (
-    <aside
+    <section
       id="contributions-graph"
       className="flex w-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg bg-gray-900 p-4"
     >
@@ -125,7 +125,7 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
       <div className="w-full min-w-0 overflow-x-auto overflow-y-hidden">
         <div ref={graphRef} className="mx-auto h-36 w-195 shrink-0" />
       </div>
-    </aside>
+    </section>
   );
 };
 

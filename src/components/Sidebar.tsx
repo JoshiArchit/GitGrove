@@ -6,6 +6,7 @@ import { RepoEntry } from "../types/repo.types";
 
 type SidebarProps = {
   setActiveRepo: (repo: RepoEntry) => void;
+  setReposScanned: (scanned: boolean) => void;
   activeRepo: RepoEntry | undefined;
 };
 
@@ -13,7 +14,11 @@ type SidebarProps = {
  * A sidebar component that displays a list of git repositories, a button to scan a root directory and selecting a repository to view its details.
  * @returns The rendered sidebar component.
  */
-const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
+const Sidebar = ({
+  setActiveRepo,
+  setReposScanned,
+  activeRepo,
+}: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
   const [repoList, setRepoList] = useState<RepoEntry[]>([]);
   const [rootPath, setRootPath] = useState<string>("");
@@ -23,6 +28,7 @@ const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
       rootDirectory: path,
     });
     setRepoList(result);
+    setReposScanned(true);
   }
 
   async function getRootDirectoryPath() {
@@ -42,7 +48,7 @@ const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
   }
 
   return (
-    <aside
+    <div
       id="sidebar"
       className={`${collapsed ? "w-sidebar-collapsed" : "w-64 lg:w-[20vw]"} z-10 box-border flex h-full flex-col gap-3 rounded-xl bg-gray-900 p-4 text-white shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-all duration-300`}
     >
@@ -125,7 +131,7 @@ const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
           </ul>
         </section>
       )}
-    </aside>
+    </div>
   );
 };
 

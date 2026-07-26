@@ -6,6 +6,7 @@ import { RepoEntry } from "../types/repo.types";
 
 type SidebarProps = {
   setActiveRepo: (repo: RepoEntry) => void;
+  setReposScanned: (scanned: boolean) => void;
   activeRepo: RepoEntry | undefined;
 };
 
@@ -13,7 +14,11 @@ type SidebarProps = {
  * A sidebar component that displays a list of git repositories, a button to scan a root directory and selecting a repository to view its details.
  * @returns The rendered sidebar component.
  */
-const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
+const Sidebar = ({
+  setActiveRepo,
+  setReposScanned,
+  activeRepo,
+}: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
   const [repoList, setRepoList] = useState<RepoEntry[]>([]);
   const [rootPath, setRootPath] = useState<string>("");
@@ -23,6 +28,7 @@ const Sidebar = ({ setActiveRepo, activeRepo }: SidebarProps) => {
       rootDirectory: path,
     });
     setRepoList(result);
+    setReposScanned(true);
   }
 
   async function getRootDirectoryPath() {

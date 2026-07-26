@@ -28,85 +28,36 @@ pub struct RepoSummary {
 /// Computes a summary snapshot (current branch, remote, branch/commit counts, first/last commit dates, and language breakdown) for the given repository.
 #[tauri::command]
 pub fn get_repo_summary(repo_path: String) -> RepoSummary {
-    let current_branch = std::process::Command::new("git")
-        .arg("-C")
-        .arg(&repo_path)
-        .arg("rev-parse")
-        .arg("--abbrev-ref")
-        .arg("HEAD")
-        .output()
-        .expect("git should be installed and able to resolve the current branch");
-    let current_branch = String::from_utf8_lossy(&current_branch.stdout)
-        .trim()
-        .to_string();
+    let current_branch = run_git(&repo_path, &["rev-parse", "--abbrev-ref", "HEAD"]);
 
-    let remote_url = std::process::Command::new("git")
-        .arg("-C")
-        .arg(&repo_path)
-        .arg("remote")
-        .arg("get-url")
-        .arg("origin")
-        .output()
-        .expect("git should be installed and able to resolve the remote url");
-    let remote_url = String::from_utf8_lossy(&remote_url.stdout)
-        .trim()
-        .to_string();
+    let remote_url = run_git(&repo_path, &["remote", "get-url", "origin"]);
     let remote_url = if remote_url.is_empty() {
         None
     } else {
         Some(remote_url)
     };
 
-    let branch_count = std::process::Command::new("git")
-        .arg("-C")
-        .arg(&repo_path)
-        .arg("branch")
-        .arg("--list")
-        .output()
-        .expect("git should be installed and able to get branch count");
-    let branch_count = String::from_utf8_lossy(&branch_count.stdout)
-        .lines()
-        .count() as u32;
+    let branch_count = run_git(&repo_path, &["branch", "--list"]).lines().count() as u32;
 
-    let total_commits = std::process::Command::new("git")
-        .arg("-C")
-        .arg(&repo_path)
-        .arg("rev-list")
-        .arg("--count")
-        .arg("HEAD")
-        .output()
-        .expect("git should be installed and able to get count of commits on main");
-    let total_commits = String::from_utf8_lossy(&total_commits.stdout)
-        .trim()
+    let total_commits = run_git(&repo_path, &["rev-list", "--count", "HEAD"])
         .parse::<u32>()
         .expect("git rev-list --count should output a valid number");
 
-    let first_commit_date = std::process::Command::new("git")
-        .arg("-C")
-        .arg(&repo_path)
-        .arg("log")
-        .arg("-1")
-        .arg("--reverse")
-        .arg("--format=%ad")
-        .arg("--date=format:%Y-%m-%d")
-        .output()
-        .expect("git should be installed and able to get first commit date");
-    let first_commit_date = String::from_utf8_lossy(&first_commit_date.stdout)
-        .trim()
-        .to_string();
+    let first_commit_date = run_git(
+        &repo_path,
+        &[
+            "log",
+            "-1",
+            "--reverse",
+            "--format=%ad",
+            "--date=format:%Y-%m-%d",
+        ],
+    );
 
-    let last_commit_date = std::process::Command::new("git")
-        .arg("-C")
-        .arg(&repo_path)
-        .arg("log")
-        .arg("-1")
-        .arg("--format=%ad")
-        .arg("--date=format:%Y-%m-%d")
-        .output()
-        .expect("git should be installed and able to get last commit date");
-    let last_commit_date = String::from_utf8_lossy(&last_commit_date.stdout)
-        .trim()
-        .to_string();
+    let last_commit_date = run_git(
+        &repo_path,
+        &["log", "-1", "--format=%ad", "--date=format:%Y-%m-%d"],
+    );
 
     let languages = get_languages(&repo_path);
 
@@ -119,6 +70,17 @@ pub fn get_repo_summary(repo_path: String) -> RepoSummary {
         last_commit_date,
         languages,
     }
+}
+
+/// Runs a git command against the given repository path and returns the stdout as a String.
+fn run_git(repo_path: &str, args: &[&str]) -> String {
+    let output = std::process::Command::new("git")
+        .arg("-C")
+        .arg(repo_path)
+        .args(args)
+        .output()
+        .expect("git should be installed and runnable");
+    String::from_utf8_lossy(&output.stdout).trim().to_string()
 }
 
 /// Computes the language breakdown (language name -> code line count) for the given repository using the `tokei` crate.

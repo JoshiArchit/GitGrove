@@ -12,8 +12,8 @@ const WelcomeScreen = ({ reposScanned, activeRepo }: WelcomeScreenProps) => {
       id="welcome-screen"
       className="flex h-full w-full flex-col items-center justify-center gap-4 rounded-xl bg-gray-900 p-6 text-white"
     >
-      <div className="flex items-center gap-2">
-        <Sprout className="h-9 w-9" />
+      <div className="flex items-center gap-4">
+        <Sprout className="h-9 w-9 animate-pulse" />
         <span className="text-4xl">Welcome to GitGrove!</span>
       </div>
       <div className="relative h-6 w-full text-center text-white/50 transition-all duration-300">

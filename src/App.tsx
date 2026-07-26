@@ -11,7 +11,7 @@ function App() {
   const [reposScanned, setReposScanned] = useState<boolean>(false);
 
   return (
-    <div className="relative flex h-screen min-h-160 w-screen min-w-120 gap-4 bg-black p-3 font-mono">
+    <div className="relative flex h-screen min-h-120 w-screen min-w-160 gap-4 bg-black p-3 font-mono">
       <div className="w-sidebar-collapsed shrink-0" />{" "}
       {/* reserves collapsed-width space */}
       <aside className="absolute inset-y-3 left-3 z-10">

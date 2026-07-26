@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import "./App.css";
 import ContributionGraph from "./components/ContributionGraph";
@@ -20,13 +21,33 @@ function App() {
           activeRepo={activeRepo}
         />
       </aside>
-      <main className="border-box h-full w-full min-w-0">
-        {(!reposScanned || !activeRepo) && (
-          <WelcomeScreen reposScanned={reposScanned} activeRepo={activeRepo} />
-        )}
-        {reposScanned && activeRepo && (
-          <ContributionGraph selectedRepo={activeRepo} />
-        )}
+      {/* TODO: If the number of components in <main> increases, consider making a wrapper component. */}
+      <main className="border-box relative h-full w-full min-w-0 overflow-hidden">
+        <AnimatePresence initial={false}>
+          {!reposScanned || !activeRepo ? (
+            <motion.div
+              key="welcome"
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0"
+            >
+              <WelcomeScreen
+                reposScanned={reposScanned}
+                activeRepo={activeRepo}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="content"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0"
+            >
+              <ContributionGraph selectedRepo={activeRepo} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

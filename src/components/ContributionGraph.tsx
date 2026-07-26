@@ -24,16 +24,19 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
   const [contributions, setContributions] = useState<Contributions | null>(
     null,
   );
+  const [loaded, setLoaded] = useState<boolean>(false);
 
   // Gets the contributions for the selected repository
   useEffect(() => {
     if (!selectedRepo) return;
+    setLoaded(false);
 
     async function getContributions() {
       const result = await invoke<Contributions>("get_contributions", {
         repoPath: selectedRepo?.path,
       });
       setContributions(result);
+      setLoaded(true);
     }
 
     getContributions();
@@ -119,7 +122,7 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
   return (
     <section
       id="contributions-graph"
-      className="flex w-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg bg-gray-900 p-4"
+      className={`flex w-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg bg-gray-900 p-4 transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
     >
       <span className="text-white">Contribution Graph</span>
       <div className="w-full min-w-0 overflow-x-auto overflow-y-hidden">

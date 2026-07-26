@@ -27,7 +27,7 @@ pub struct RepoSummary {
 
 /// Computes a summary snapshot (current branch, remote, branch/commit counts, first/last commit dates, and language breakdown) for the given repository.
 #[tauri::command]
-pub fn get_repo_summary(repo_path: String) -> RepoSummary {
+pub fn get_repo_summary(repo_path: String, excluded: Option<Vec<String>>) -> RepoSummary {
     let current_branch = run_git(&repo_path, &["rev-parse", "--abbrev-ref", "HEAD"]);
 
     let remote_url = run_git(&repo_path, &["remote", "get-url", "origin"]);
@@ -41,7 +41,7 @@ pub fn get_repo_summary(repo_path: String) -> RepoSummary {
 
     let total_commits = run_git(&repo_path, &["rev-list", "--count", "HEAD"])
         .parse::<u32>()
-        .expect("git rev-list --count should output a valid number");
+        .unwrap_or(0);
 
     let first_commit_date = run_git(
         &repo_path,
@@ -59,7 +59,7 @@ pub fn get_repo_summary(repo_path: String) -> RepoSummary {
         &["log", "-1", "--format=%ad", "--date=format:%Y-%m-%d"],
     );
 
-    let languages = get_languages(&repo_path);
+    let languages = get_languages(&repo_path, excluded);
 
     RepoSummary {
         current_branch,
@@ -84,11 +84,25 @@ fn run_git(repo_path: &str, args: &[&str]) -> String {
 }
 
 /// Computes the language breakdown (language name -> code line count) for the given repository using the `tokei` crate.
-fn get_languages(repo_path: &str) -> HashMap<String, usize> {
+/// The user can optionally provide a list of file extensions to exclude from the analysis.
+fn get_languages(repo_path: &str, excluded: Option<Vec<String>>) -> HashMap<String, usize> {
+    // TODO: Might append to the default excluded list instead of replacing it entirely, but for now, the caller-supplied list replaces the default entirely.
+    let default_excluded = vec![
+        "*.lock".to_string(),
+        "*.json".to_string(),
+        "*.yml".to_string(),
+        "*.yaml".to_string(),
+        "*.toml".to_string(),
+        "*.md".to_string(),
+        "*.txt".to_string(),
+    ];
+    let excluded = excluded.unwrap_or(default_excluded);
+    let excluded_refs: Vec<&str> = excluded.iter().map(|s| s.as_str()).collect();
+
     let mut tokei_languages = Languages::new();
     let config = Config::default();
 
-    tokei_languages.get_statistics(&[repo_path], &[], &config);
+    tokei_languages.get_statistics(&[repo_path], &excluded_refs, &config);
 
     tokei_languages
         .iter()
@@ -146,7 +160,7 @@ mod tests {
 
         git(repo_path, &["branch", "other-branch"]);
 
-        let summary = get_repo_summary(repo_path.to_string_lossy().to_string());
+        let summary = get_repo_summary(repo_path.to_string_lossy().to_string(), None);
 
         let today = chrono::Local::now().format("%Y-%m-%d").to_string();
 
@@ -175,8 +189,44 @@ mod tests {
         git(repo_path, &["add", "."]);
         git(repo_path, &["commit", "-m", "initial commit"]);
 
-        let summary = get_repo_summary(repo_path.to_string_lossy().to_string());
+        let summary = get_repo_summary(repo_path.to_string_lossy().to_string(), None);
 
         assert_eq!(summary.remote_url, None);
+    }
+
+    #[test]
+    fn excludes_default_file_types_by_extension() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo_path = tmp.path();
+
+        fs::write(repo_path.join("main.py"), "print(\"one\")\n").unwrap();
+        fs::write(
+            repo_path.join("data.json"),
+            "{\"a\": 1, \"b\": 2, \"c\": 3}\n",
+        )
+        .unwrap();
+
+        let languages = get_languages(&repo_path.to_string_lossy(), None);
+
+        assert!(languages.contains_key("Python"));
+        assert!(!languages.contains_key("JSON"));
+    }
+
+    #[test]
+    fn custom_excluded_list_overrides_default() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo_path = tmp.path();
+
+        fs::write(repo_path.join("main.py"), "print(\"one\")\n").unwrap();
+        fs::write(
+            repo_path.join("data.json"),
+            "{\"a\": 1, \"b\": 2, \"c\": 3}\n",
+        )
+        .unwrap();
+
+        let languages = get_languages(&repo_path.to_string_lossy(), Some(vec!["*.py".to_string()]));
+
+        assert!(!languages.contains_key("Python"));
+        assert!(languages.contains_key("JSON")); // caller-supplied list replaces the default entirely, doesn't merge with it
     }
 }

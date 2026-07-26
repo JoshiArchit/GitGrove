@@ -10,15 +10,8 @@ export type RepoEntry = {
 };
 
 /**
- * A collection of contributions, grouped by author email.
+ * A collection of contributions, grouped by date.
  */
 export type Contributions = {
-  contributions: Record<string, AuthorContributions>;
-};
-
-/**
- * Contributions by a single author, grouped by email.
- */
-export type AuthorContributions = {
-  by_author: Record<string, number>;
+  contributions: Record<string, number>;
 };

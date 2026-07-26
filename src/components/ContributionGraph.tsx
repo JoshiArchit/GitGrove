@@ -9,13 +9,7 @@ type ContributionGraphProps = {
 };
 
 function buildCalendarData(contributions: Contributions): [string, number][] {
-  return Object.entries(contributions.contributions).map(([date, byAuthor]) => {
-    const total = Object.values(byAuthor.by_author).reduce(
-      (sum, count) => sum + count,
-      0,
-    );
-    return [date, total];
-  });
+  return Object.entries(contributions.contributions);
 }
 
 /** Shortens an author email for tooltip display, extracting the username from GitHub noreply addresses. */
@@ -74,11 +68,8 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
         appendTo: () => document.body,
         formatter: (params: any) => {
           const date: string = params.value[0];
-          const byAuthor = contributions.contributions[date]?.by_author ?? {};
-          const lines = Object.entries(byAuthor)
-            .map(([email, count]) => `${displayName(email)}: ${count}`)
-            .join("<br/>");
-          return `${date}<br/>${lines || "No commits"}`;
+          const count = contributions.contributions[date] ?? 0;
+          return `${date}<br/>${count} commit${count === 1 ? "" : "s"}`;
         },
       },
       visualMap: {

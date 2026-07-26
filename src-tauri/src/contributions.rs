@@ -1,6 +1,6 @@
-//! Uses the absolute path of the selected repository to get the contributions for each author in that repository.
+//! Uses the absolute path of the selected repository to get the contributions by day
 //! The contributions are returned to the frontend for display and for generating the contributions graph.
-//! Git command to get contributions for all authors in a repository for last 12 months: `git -C "<repo_path>" log --all --date=format:%Y-%m-%d --format='%ad|%ae' --since="1 year ago"`
+//! Git command to get contributions for all authors in a repository for last 12 months: `git -C "<repo_path>" log --all --date=format:%Y-%m-%d --format='%ad' --since="1 year ago"`
 
 use std::collections::HashMap;
 
@@ -8,17 +8,11 @@ use std::collections::HashMap;
 /// Used for displaying the contributions in the frontend.
 #[derive(serde::Serialize)]
 pub struct Contributions {
-    pub contributions: HashMap<String, AuthorContributions>,
-}
-
-/// Represents the contributions for a specific author in a repository.
-/// Used for tooltip display in the frontend, and for generating the contributions graph.
-#[derive(serde::Serialize)]
-pub struct AuthorContributions {
-    pub by_author: HashMap<String, u32>,
+    pub contributions: HashMap<String, u32>,
 }
 
 #[tauri::command]
+// TODO: Add a option for selecting period
 pub fn get_contributions(repo_path: String) -> Contributions {
     let output = std::process::Command::new("git")
         .arg("-C")
@@ -26,28 +20,22 @@ pub fn get_contributions(repo_path: String) -> Contributions {
         .arg("log")
         .arg("--all")
         .arg("--date=format:%Y-%m-%d")
-        .arg("--format=%ad|%ae")
+        .arg("--format=%ad")
         .arg("--since=1 year ago")
         .output()
         .expect("Failed to execute git command");
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    let mut contributions: HashMap<String, AuthorContributions> = HashMap::new();
+    let mut contributions: HashMap<String, u32> = HashMap::new();
 
     for line in stdout.lines() {
-        let Some((date, email)) = line.split_once('|') else {
-            //TODO: Add logging.
-            continue; // Malformed string, dont panic.
-        };
+        if line.is_empty() {
+            // TODO: Add logging
+            continue;
+        }
 
         contributions
-            .entry(date.to_string())
-            .or_insert_with(|| AuthorContributions {
-                // Initialize with an empty HashMap for by_author
-                by_author: HashMap::new(),
-            })
-            .by_author
-            .entry(email.to_string())
+            .entry(line.to_string())
             .and_modify(|c| *c += 1) // Increment the count if the email already exists
             .or_insert(1);
     }
@@ -104,7 +92,6 @@ mod tests {
             .get(&today)
             .expect("expected an entry for today's date");
 
-        assert_eq!(today_entry.by_author.get("alice@example.com"), Some(&2));
-        assert_eq!(today_entry.by_author.get("bob@example.com"), Some(&1));
+        assert_eq!(today_entry, &3); // Alice's 2 commits + Bob's 1
     }
 }

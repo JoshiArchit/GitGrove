@@ -96,3 +96,87 @@ fn get_languages(repo_path: &str) -> HashMap<String, usize> {
         .map(|(lang_type, language)| (lang_type.to_string(), language.code))
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::process::Command;
+
+    fn git(repo_path: &std::path::Path, args: &[&str]) {
+        let status = Command::new("git")
+            .arg("-C")
+            .arg(repo_path)
+            .args(args)
+            .status()
+            .expect("failed to run git");
+        assert!(status.success(), "git {:?} failed", args);
+    }
+
+    #[test]
+    fn computes_repo_summary_fields() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo_path = tmp.path();
+
+        git(repo_path, &["init"]);
+        git(repo_path, &["checkout", "-b", "test-branch"]);
+        git(repo_path, &["config", "user.name", "Test User"]);
+        git(repo_path, &["config", "user.email", "test@example.com"]);
+        git(
+            repo_path,
+            &[
+                "remote",
+                "add",
+                "origin",
+                "https://github.com/example/repo.git",
+            ],
+        );
+
+        fs::write(
+            repo_path.join("main.py"),
+            "print(\"one\")\nprint(\"two\")\nprint(\"three\")\n",
+        )
+        .unwrap();
+        git(repo_path, &["add", "."]);
+        git(repo_path, &["commit", "-m", "first commit"]);
+
+        fs::write(repo_path.join("second.py"), "print(\"four\")\n").unwrap();
+        git(repo_path, &["add", "."]);
+        git(repo_path, &["commit", "-m", "second commit"]);
+
+        git(repo_path, &["branch", "other-branch"]);
+
+        let summary = get_repo_summary(repo_path.to_string_lossy().to_string());
+
+        let today = chrono::Local::now().format("%Y-%m-%d").to_string();
+
+        assert_eq!(summary.current_branch, "test-branch");
+        assert_eq!(
+            summary.remote_url,
+            Some("https://github.com/example/repo.git".to_string())
+        );
+        assert_eq!(summary.branch_count, 2);
+        assert_eq!(summary.total_commits, 2);
+        assert_eq!(summary.first_commit_date, today);
+        assert_eq!(summary.last_commit_date, today);
+        assert_eq!(summary.languages.get("Python"), Some(&4));
+    }
+
+    #[test]
+    fn remote_url_is_none_without_origin() {
+        let tmp = tempfile::tempdir().unwrap();
+        let repo_path = tmp.path();
+
+        git(repo_path, &["init"]);
+        git(repo_path, &["config", "user.name", "Test User"]);
+        git(repo_path, &["config", "user.email", "test@example.com"]);
+
+        fs::write(repo_path.join("file.txt"), "hello").unwrap();
+        git(repo_path, &["add", "."]);
+        git(repo_path, &["commit", "-m", "initial commit"]);
+
+        let summary = get_repo_summary(repo_path.to_string_lossy().to_string());
+
+        assert_eq!(summary.remote_url, None);
+    }
+}

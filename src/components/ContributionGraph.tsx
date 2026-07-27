@@ -19,7 +19,7 @@ function displayName(email: string): string {
 }
 
 const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
-  const graphRef = useRef<HTMLDivElement>(null);
+  const chartDivRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
   const [contributions, setContributions] = useState<Contributions | null>(
     null,
@@ -44,8 +44,8 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
 
   // Sets up the graph and disposes on unmount
   useEffect(() => {
-    if (!graphRef.current) return;
-    chartRef.current = echarts.init(graphRef.current, undefined, {
+    if (!chartDivRef.current) return;
+    chartRef.current = echarts.init(chartDivRef.current, undefined, {
       width: 780,
       height: 140,
     });
@@ -126,7 +126,7 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
     >
       <span className="text-white">Contribution Graph</span>
       <div className="w-full min-w-0 overflow-x-auto overflow-y-hidden">
-        <div ref={graphRef} className="mx-auto h-36 w-195 shrink-0" />
+        <div ref={chartDivRef} className="mx-auto h-36 w-195 shrink-0" />
       </div>
     </section>
   );

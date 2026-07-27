@@ -45,6 +45,7 @@ const Sidebar = ({
 
   function handleSetActiveRepo(repo: RepoEntry) {
     setActiveRepo(repo);
+    setCollapsed(true);
   }
 
   return (

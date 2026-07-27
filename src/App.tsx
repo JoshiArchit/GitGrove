@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import "./App.css";
 import ContributionGraph from "./components/ContributionGraph";
+import RepoSummaryData from "./components/RepoSummary/RepoSummary";
 import Sidebar from "./components/Sidebar";
 import WelcomeScreen from "./components/WelcomeScreen";
 import type { RepoEntry } from "./types/repo.types";
@@ -22,7 +23,7 @@ function App() {
         />
       </aside>
       {/* TODO: If the number of components in <main> increases, consider making a wrapper component. */}
-      <main className="border-box relative h-full w-full min-w-0 overflow-hidden">
+      <main className="border-box relative h-full w-full min-w-0 scrollbar-thumb-gray-700 scrollbar-track-gray-500 overflow-auto">
         <AnimatePresence initial={false}>
           {!reposScanned || !activeRepo ? (
             <motion.div
@@ -42,8 +43,9 @@ function App() {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="absolute inset-0"
+              className="absolute inset-0 flex flex-col gap-3 pr-3"
             >
+              <RepoSummaryData selectedRepo={activeRepo} />
               <ContributionGraph selectedRepo={activeRepo} />
             </motion.div>
           )}

@@ -45,14 +45,12 @@ pub fn get_repo_summary(repo_path: String, excluded: Option<Vec<String>>) -> Rep
 
     let first_commit_date = run_git(
         &repo_path,
-        &[
-            "log",
-            "-1",
-            "--reverse",
-            "--format=%ad",
-            "--date=format:%Y-%m-%d",
-        ],
-    );
+        &["log", "--reverse", "--format=%ad", "--date=format:%Y-%m-%d"],
+    )
+    .lines()
+    .next()
+    .unwrap_or_default()
+    .to_string();
 
     let last_commit_date = run_git(
         &repo_path,

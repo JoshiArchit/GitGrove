@@ -2,9 +2,17 @@ import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import type { EChartsOption } from "echarts";
 import * as echarts from "echarts";
-import { Info, Link } from "lucide-react";
+import {
+  GitBranch,
+  GitCommitHorizontal,
+  Info,
+  Link,
+  Sunrise,
+  Sunset,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { RepoEntry, RepoSummaryData } from "../../types/repo.types";
+import StatCard from "./StatCard";
 
 type RepoSummaryProps = {
   selectedRepo: RepoEntry;
@@ -109,25 +117,51 @@ const RepoSummary = ({ selectedRepo }: RepoSummaryProps) => {
         </section>
         <section
           id="summary-stats"
-          className="shadow-card-elevation flex h-full w-full rounded-xl bg-gray-800 p-4"
+          className="shadow-card-elevation flex h-full w-full flex-col rounded-xl bg-gray-800 p-4"
         >
-          <div className="flex h-fit w-full flex-col flex-wrap gap-3 border-b-2 border-gray-900 pb-4">
+          <section className="flex h-fit w-full flex-col flex-wrap items-start justify-center gap-3 border-b-2 border-gray-900 pb-4">
             <span>Current Branch : {repoSummary?.current_branch}</span>
             {repoSummary?.remote_url ? (
               <button
-                className="flex w-fit items-center gap-1 border-0 bg-transparent p-0 text-white"
+                className="flex w-fit items-start gap-1 border-0 bg-transparent p-0 text-white"
                 onClick={() => openUrl(repoSummary.remote_url!)}
               >
-                Remote Url :{" "}
+                <span className="w-fit">Remote : </span>
                 <span className="hover:cursor-pointer hover:underline">
                   {repoSummary.remote_url}
                 </span>
                 <Link className="h-3 w-3" />
               </button>
             ) : (
-              <span>Remote Url : No remote set</span>
+              <span>Remote : No remote set</span>
             )}
-          </div>
+          </section>
+
+          <section className="box-border flex w-full flex-wrap items-center justify-center gap-8 p-4">
+            <StatCard
+              icon={<GitBranch className="h-4 w-4" />}
+              title="Branches"
+              value={repoSummary?.branch_count ?? 0}
+            />
+
+            <StatCard
+              icon={<GitCommitHorizontal />}
+              title="Commits"
+              value={repoSummary?.total_commits ?? 0}
+            />
+
+            <StatCard
+              icon={<Sunrise />}
+              title="First Commit"
+              value={repoSummary?.first_commit_date ?? 0}
+            />
+
+            <StatCard
+              icon={<Sunset />}
+              title="Most Recent Commit"
+              value={repoSummary?.last_commit_date ?? 0}
+            />
+          </section>
         </section>
       </div>
     </div>

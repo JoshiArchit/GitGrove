@@ -104,7 +104,7 @@ const RepoSummary = ({ selectedRepo }: RepoSummaryProps) => {
       className="box-border flex h-fit w-full flex-col gap-4 rounded-xl bg-gray-900 p-4 text-white"
     >
       <div>Repository Summary</div>
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 md:flex-row">
         <section
           id="languages-chart"
           className="shadow-card-elevation flex flex-col rounded-xl bg-gray-800 p-4"
@@ -117,27 +117,33 @@ const RepoSummary = ({ selectedRepo }: RepoSummaryProps) => {
         </section>
         <section
           id="summary-stats"
-          className="shadow-card-elevation flex h-full w-full flex-col rounded-xl bg-gray-800 p-4"
+          className="shadow-card-elevation flex h-full w-full min-w-0 flex-col rounded-xl bg-gray-800 p-4"
         >
-          <section className="flex h-fit w-full flex-col flex-wrap items-start justify-center gap-3 border-b-2 border-gray-900 pb-4">
-            <span>Current Branch : {repoSummary?.current_branch}</span>
+          <section className="flex h-fit w-full min-w-0 flex-col flex-wrap items-start justify-center gap-3 border-b-2 border-gray-900 pb-4">
+            <span
+              className="w-full truncate"
+              title={repoSummary?.current_branch}
+            >
+              Current Branch : {repoSummary?.current_branch}
+            </span>
             {repoSummary?.remote_url ? (
               <button
-                className="flex w-fit items-start gap-1 border-0 bg-transparent p-0 text-white"
+                className="flex w-full min-w-0 items-start gap-1 border-0 bg-transparent p-0 text-white"
                 onClick={() => openUrl(repoSummary.remote_url!)}
+                title={repoSummary.remote_url}
               >
-                <span className="w-fit">Remote : </span>
-                <span className="hover:cursor-pointer hover:underline">
+                <span className="w-fit shrink-0">Remote : </span>
+                <span className="min-w-0 truncate hover:cursor-pointer hover:underline">
                   {repoSummary.remote_url}
                 </span>
-                <Link className="h-3 w-3" />
+                <Link className="h-3 w-3 shrink-0" />
               </button>
             ) : (
               <span>Remote : No remote set</span>
             )}
           </section>
 
-          <section className="box-border flex w-full flex-wrap items-center justify-center gap-8 p-4">
+          <section className="box-border grid w-full grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-4 p-4">
             <StatCard
               icon={<GitBranch className="h-4 w-4" />}
               title="Branches"

@@ -3,6 +3,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import type { EChartsOption } from "echarts";
 import * as echarts from "echarts";
 import {
+  ChevronDown,
   GitBranch,
   GitCommitHorizontal,
   Info,
@@ -10,6 +11,7 @@ import {
   Sunrise,
   Sunset,
 } from "lucide-react";
+import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { RepoEntry, RepoSummaryData } from "../../types/repo.types";
 import StatCard from "./StatCard";
@@ -22,6 +24,7 @@ const RepoSummary = ({ selectedRepo }: RepoSummaryProps) => {
   const [repoSummary, setRepoSummary] = useState<RepoSummaryData | undefined>(
     undefined,
   );
+  const [collapsed, setCollapsed] = useState<boolean>(false);
   const chartDivRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
 
@@ -101,75 +104,90 @@ const RepoSummary = ({ selectedRepo }: RepoSummaryProps) => {
   return (
     <div
       id="repo-summary"
-      className="box-border flex h-fit w-full flex-col gap-4 rounded-xl bg-gray-900 p-4 text-white"
+      className={`${collapsed ? "gap-0" : "gap-4"} box-border flex h-fit w-full flex-col rounded-xl bg-gray-900 p-4 text-white transition-[gap] duration-300`}
     >
-      <div>Repository Summary</div>
-      <div className="flex flex-col gap-3 md:flex-row">
-        <section
-          id="languages-chart"
-          className="shadow-card-elevation flex flex-col rounded-xl bg-gray-800 p-4"
-        >
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-white">Tech Stack</span>
-            <Info className="h-4 w-4 self-start text-gray-500" />
-          </div>
-          <div ref={chartDivRef}></div>
-        </section>
-        <section
-          id="summary-stats"
-          className="shadow-card-elevation flex h-full w-full min-w-0 flex-col rounded-xl bg-gray-800 p-4"
-        >
-          <section className="flex h-fit w-full min-w-0 flex-col flex-wrap items-start justify-center gap-3 border-b-2 border-gray-900 pb-4">
-            <span
-              className="w-full truncate"
-              title={repoSummary?.current_branch}
-            >
-              Current Branch : {repoSummary?.current_branch}
-            </span>
-            {repoSummary?.remote_url ? (
-              <button
-                className="flex w-full min-w-0 items-start gap-1 border-0 bg-transparent p-0 text-white"
-                onClick={() => openUrl(repoSummary.remote_url!)}
-                title={repoSummary.remote_url}
+      <button
+        className="flex w-fit items-center gap-2 border-0 bg-transparent p-0 text-white"
+        onClick={() => setCollapsed(!collapsed)}
+      >
+        <span>Repository Summary</span>
+        <ChevronDown
+          className={`h-4 w-4 transition-transform duration-300 ${collapsed ? "" : "rotate-180"}`}
+        />
+      </button>
+      <motion.div
+        initial={false}
+        animate={{ height: collapsed ? 0 : "auto" }}
+        transition={{ duration: 0.3 }}
+        className="overflow-hidden bg-transparent"
+      >
+        <div className="flex flex-col gap-3 md:flex-row md:items-stretch">
+          <section
+            id="languages-chart"
+            className="shadow-card-elevation-1 flex flex-col rounded-xl bg-gray-800 p-4"
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-white">Tech Stack</span>
+              <Info className="h-4 w-4 self-start text-gray-500" />
+            </div>
+            <div ref={chartDivRef}></div>
+          </section>
+          <section
+            id="summary-stats"
+            className="shadow-card-elevation-1 flex h-full w-full min-w-0 flex-col rounded-xl bg-gray-800 p-4"
+          >
+            <section className="flex h-fit w-full min-w-0 flex-col flex-wrap items-start justify-center gap-3 border-b-2 border-gray-900 pb-4">
+              <span
+                className="w-full truncate"
+                title={repoSummary?.current_branch}
               >
-                <span className="w-fit shrink-0">Remote : </span>
-                <span className="min-w-0 truncate hover:cursor-pointer hover:underline">
-                  {repoSummary.remote_url}
-                </span>
-                <Link className="h-3 w-3 shrink-0" />
-              </button>
-            ) : (
-              <span>Remote : No remote set</span>
-            )}
+                Current Branch : {repoSummary?.current_branch}
+              </span>
+              {repoSummary?.remote_url ? (
+                <button
+                  className="flex w-full min-w-0 items-start gap-1 border-0 bg-transparent p-0 text-white"
+                  onClick={() => openUrl(repoSummary.remote_url!)}
+                  title={repoSummary.remote_url}
+                >
+                  <span className="w-fit shrink-0">Remote : </span>
+                  <span className="min-w-0 truncate hover:cursor-pointer hover:underline">
+                    {repoSummary.remote_url}
+                  </span>
+                  <Link className="h-3 w-3 shrink-0" />
+                </button>
+              ) : (
+                <span>Remote : No remote set</span>
+              )}
+            </section>
+
+            <section className="box-border grid w-full grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-4 p-4">
+              <StatCard
+                icon={<GitBranch className="h-4 w-4" />}
+                title="Branches"
+                value={repoSummary?.branch_count ?? 0}
+              />
+
+              <StatCard
+                icon={<GitCommitHorizontal />}
+                title="Commits"
+                value={repoSummary?.total_commits ?? 0}
+              />
+
+              <StatCard
+                icon={<Sunrise />}
+                title="First Commit"
+                value={repoSummary?.first_commit_date ?? 0}
+              />
+
+              <StatCard
+                icon={<Sunset />}
+                title="Most Recent Commit"
+                value={repoSummary?.last_commit_date ?? 0}
+              />
+            </section>
           </section>
-
-          <section className="box-border grid w-full grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-4 p-4">
-            <StatCard
-              icon={<GitBranch className="h-4 w-4" />}
-              title="Branches"
-              value={repoSummary?.branch_count ?? 0}
-            />
-
-            <StatCard
-              icon={<GitCommitHorizontal />}
-              title="Commits"
-              value={repoSummary?.total_commits ?? 0}
-            />
-
-            <StatCard
-              icon={<Sunrise />}
-              title="First Commit"
-              value={repoSummary?.first_commit_date ?? 0}
-            />
-
-            <StatCard
-              icon={<Sunset />}
-              title="Most Recent Commit"
-              value={repoSummary?.last_commit_date ?? 0}
-            />
-          </section>
-        </section>
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

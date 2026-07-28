@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { EChartsOption } from "echarts";
 import * as echarts from "echarts";
+import { ChevronDown } from "lucide-react";
+import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Contributions, RepoEntry } from "../types/repo.types";
 
@@ -25,6 +27,7 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
     null,
   );
   const [loaded, setLoaded] = useState<boolean>(false);
+  const [collapsed, setCollapsed] = useState<boolean>(false);
 
   // Gets the contributions for the selected repository
   useEffect(() => {
@@ -122,12 +125,27 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
   return (
     <section
       id="contributions-graph"
-      className={`flex w-full min-w-0 flex-col items-center justify-center gap-2 rounded-lg bg-gray-900 p-4 transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+      className={`transition- flex w-full min-w-0 flex-col items-center justify-center rounded-lg bg-gray-900 p-4 duration-300 ${loaded ? "opacity-100" : "opacity-0"} ${collapsed ? "gap-0" : "gap-4"}`}
     >
-      <span className="text-white">Contribution Graph</span>
-      <div className="w-full min-w-0 overflow-x-auto overflow-y-hidden">
-        <div ref={chartDivRef} className="mx-auto h-36 w-195 shrink-0" />
-      </div>
+      <button
+        className="flex w-full items-center gap-2 border-0 bg-transparent p-0 text-white"
+        onClick={() => setCollapsed(!collapsed)}
+      >
+        <span className="w-fit self-start">Contribution Graph</span>
+        <ChevronDown
+          className={`h-4 w-4 transition-transform duration-300 ${collapsed ? "" : "rotate-180"}`}
+        />
+      </button>
+      <motion.div
+        initial={false}
+        animate={{ height: collapsed ? 0 : "auto" }}
+        transition={{ duration: 0.3 }}
+        className="overflow-hidden"
+      >
+        <div className="w-full min-w-0 overflow-x-auto overflow-y-hidden">
+          <div ref={chartDivRef} className="mx-auto h-36 w-195 shrink-0" />
+        </div>
+      </motion.div>
     </section>
   );
 };

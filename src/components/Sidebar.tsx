@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderGit2, PanelRight, Sprout } from "lucide-react";
+import { FolderCode, FolderGit2, PanelRight, Sprout } from "lucide-react";
 import { useState } from "react";
 import { RepoEntry } from "../types/repo.types";
 
@@ -21,7 +21,6 @@ const Sidebar = ({
 }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
   const [repoList, setRepoList] = useState<RepoEntry[]>([]);
-  const [rootPath, setRootPath] = useState<string>("");
 
   async function getRepoList(path: string) {
     const result = await invoke<RepoEntry[]>("scan_repos", {
@@ -31,7 +30,22 @@ const Sidebar = ({
     setReposScanned(true);
   }
 
-  async function getRootDirectoryPath() {
+  async function getRepo(path: string) {
+    const result = await invoke<RepoEntry>("get_repo_from_path", {
+      path: path,
+    });
+
+    if (result) {
+      setRepoList([...repoList, result]);
+    }
+    setReposScanned(true);
+  }
+
+  /**
+   * Opens the default explorer dialog and allows folder selection
+   * @param scan determines if this is a recursive scan or a single repo fetch
+   */
+  async function getRootDirectoryPath(scan: boolean = true) {
     const path =
       (await open({
         directory: true,
@@ -39,8 +53,7 @@ const Sidebar = ({
         title: "Select root folder",
       })) ?? "";
 
-    setRootPath(path);
-    await getRepoList(path);
+    scan ? await getRepoList(path) : await getRepo(path);
   }
 
   function handleSetActiveRepo(repo: RepoEntry) {
@@ -85,7 +98,7 @@ const Sidebar = ({
         </button>
 
         <button
-          onClick={getRootDirectoryPath}
+          onClick={() => getRootDirectoryPath(true)}
           title="Scan for Repos"
           className={`flex items-center justify-center overflow-hidden rounded-lg border border-transparent bg-green-600 p-2 text-sm transition-all duration-300 hover:cursor-pointer hover:bg-green-700 active:scale-95 active:bg-green-800 ${collapsed ? "" : "w-full"}`}
         >
@@ -96,10 +109,9 @@ const Sidebar = ({
             Scan for Repos
           </span>
         </button>
-        {/* TODO: Enhancement, needs adjustments in the Rust Command */}
-        {/* <button
-          onClick={getRootDirectoryPath}
-          title="Scan for Repos"
+        <button
+          onClick={() => getRootDirectoryPath(false)}
+          title="Add a single repo"
           className={`flex items-center justify-center overflow-hidden rounded-lg border border-gray-500 bg-transparent p-2 text-sm transition-all duration-300 hover:cursor-pointer hover:bg-gray-800 ${collapsed ? "" : "w-full"}`}
         >
           <FolderCode className="shrink-0" />
@@ -108,7 +120,7 @@ const Sidebar = ({
           >
             Add a Repo
           </span>
-        </button> */}
+        </button>
       </section>
 
       {!collapsed && (

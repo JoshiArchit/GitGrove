@@ -1,10 +1,17 @@
-//! Recursively scans a root directory for git repositories.
+//! Discovers git repositories, either by recursively scanning a root directory
+//! or by checking a single given path directly.
 //!
 //! Detection is based on `.git` presence (directory or file, to support
 //! worktree checkouts) rather than name or structure heuristics. Known
 //! non-repo directories (`node_modules`, `dist`, `target`, etc.) are pruned
-//! without descending into them — any repo nested inside a pruned subtree
-//! is intentionally invisible to the scanner.
+//! without descending into them during a recursive scan — any repo nested
+//! inside a pruned subtree is intentionally invisible to the scanner.
+//!
+//! Both `scan_repos` (recursive) and `get_repo_from_path` (single path, for
+//! adding an individual repo outside the scanned root) share the same
+//! `.git`-detection and `RepoEntry`-construction logic via `path_to_repo_entry`.
+
+use std::path::Path;
 
 use walkdir::WalkDir;
 
@@ -14,7 +21,7 @@ const SKIP_DIRS: &[&str] = &["node_modules", "dist", "build", "target", ".next"]
 
 /// A discovered git repository, returned to the frontend for display and
 /// as the canonical identifier for subsequent per-repo commands.
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Default)]
 pub struct RepoEntry {
     /// Absolute path on disk — the identifier passed to other commands.
     pub path: String,
@@ -44,18 +51,9 @@ pub fn scan_repos(root_directory: String) -> Vec<RepoEntry> {
 
         let path = entry.path();
 
-        if (path.join(".git")).exists() {
-            let name = path
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("unknown")
-                .to_string();
-
-            repos.push(RepoEntry {
-                path: path.to_string_lossy().to_string(),
-                name,
-            });
-            iterator.skip_current_dir(); // Skips the current directory since repo path has already been determined
+        if let Some(repo) = path_to_repo_entry(path) {
+            repos.push(repo);
+            iterator.skip_current_dir();
             continue;
         }
 
@@ -71,6 +69,33 @@ pub fn scan_repos(root_directory: String) -> Vec<RepoEntry> {
     }
 
     repos
+}
+
+/**
+ * Fetches a single git repository from a given path, returning `None` if the
+ * path is not a git repository.
+ */
+#[tauri::command]
+pub fn get_repo_from_path(path: String) -> Option<RepoEntry> {
+    path_to_repo_entry(Path::new(&path))
+}
+
+/// Builds a RepoEntry from a path if it's a git repository, `None` otherwise.
+fn path_to_repo_entry(path: &Path) -> Option<RepoEntry> {
+    if !path.join(".git").exists() {
+        return None;
+    }
+
+    let name = path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("unknown")
+        .to_string();
+
+    Some(RepoEntry {
+        path: path.to_string_lossy().to_string(),
+        name,
+    })
 }
 
 #[cfg(test)]
@@ -128,5 +153,40 @@ mod tests {
         let repos = scan_repos("/this/path/does/not/exist".to_string());
 
         assert!(repos.is_empty());
+    }
+
+    #[test]
+    fn finds_repo_with_given_path() {
+        let tmp = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(tmp.path().join("repo-a/.git")).unwrap();
+
+        let repo_path = tmp.path().join("repo-a").to_string_lossy().to_string();
+        let repo = get_repo_from_path(repo_path.clone());
+
+        let repo = repo.expect("expected repo-a to be recognized as a repo");
+        assert_eq!(repo.path, repo_path);
+        assert_eq!(repo.name, "repo-a");
+    }
+
+    #[test]
+    fn returns_none_for_path_without_git() {
+        let tmp = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(tmp.path().join("just-a-folder")).unwrap();
+
+        let repo = get_repo_from_path(
+            tmp.path()
+                .join("just-a-folder")
+                .to_string_lossy()
+                .to_string(),
+        );
+
+        assert!(repo.is_none());
+    }
+
+    #[test]
+    fn returns_none_for_nonexistent_path() {
+        let repo = get_repo_from_path("/this/path/does/not/exist".to_string());
+
+        assert!(repo.is_none());
     }
 }

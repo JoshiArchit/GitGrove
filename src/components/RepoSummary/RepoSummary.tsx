@@ -134,7 +134,7 @@ const RepoSummary = ({ selectedRepo }: RepoSummaryProps) => {
           </section>
           <section
             id="summary-stats"
-            className="shadow-card-elevation-1 flex h-full w-full min-w-0 flex-col rounded-xl bg-gray-800 p-4"
+            className="shadow-card-elevation-1 flex w-full min-w-0 flex-col rounded-xl bg-gray-800 p-4"
           >
             <section className="flex h-fit w-full min-w-0 flex-col flex-wrap items-start justify-center gap-3 border-b-2 border-gray-900 pb-4">
               <span

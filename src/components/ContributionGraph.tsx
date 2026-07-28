@@ -140,7 +140,7 @@ const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
         initial={false}
         animate={{ height: collapsed ? 0 : "auto" }}
         transition={{ duration: 0.3 }}
-        className="overflow-hidden"
+        className="w-full min-w-0 overflow-hidden"
       >
         <div className="w-full min-w-0 overflow-x-auto overflow-y-hidden">
           <div ref={chartDivRef} className="mx-auto h-36 w-195 shrink-0" />

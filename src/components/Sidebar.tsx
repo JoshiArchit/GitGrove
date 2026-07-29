@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderCode, FolderGit2, PanelRight, Sprout } from "lucide-react";
 import { useState } from "react";
+import { usePersistedRepoList } from "../hooks/usePersistedRepoList";
 import { RepoEntry } from "../types/repo.types";
 
 type SidebarProps = {
@@ -20,23 +21,49 @@ const Sidebar = ({
   activeRepo,
 }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
-  const [repoList, setRepoList] = useState<RepoEntry[]>([]);
+  const { repoList, updateRepoList, addScannedRoot } = usePersistedRepoList();
 
+  /**
+   * Merges two lists of repositories, ensuring that there are no duplicates based on the repository path.
+   * @param existing The existing list of repositories.
+   * @param incoming The incoming list of repositories to merge.
+   * @returns A new list of repositories with duplicates removed.
+   */
+  function mergeRepos(
+    existing: RepoEntry[],
+    incoming: RepoEntry[],
+  ): RepoEntry[] {
+    const byPath = new Map(existing.map((r) => [r.path, r]));
+    for (const repo of incoming) {
+      byPath.set(repo.path, repo);
+    }
+    return Array.from(byPath.values());
+  }
+
+  /**
+   * Gets a list of repositories from the specified root directory and updates the state with the result.
+   * @param path The path to the root directory to scan.
+   */
   async function getRepoList(path: string) {
     const result = await invoke<RepoEntry[]>("scan_repos", {
       rootDirectory: path,
     });
-    setRepoList(result);
+    updateRepoList(mergeRepos(repoList, result));
+    addScannedRoot(path);
     setReposScanned(true);
   }
 
+  /**
+   * Gets a single repository from the specified path and updates the state with the result.
+   * @param path The path to the repository to fetch.
+   */
   async function getRepo(path: string) {
     const result = await invoke<RepoEntry>("get_repo_from_path", {
       path: path,
     });
 
     if (result) {
-      setRepoList([...repoList, result]);
+      updateRepoList(mergeRepos(repoList, [result]));
     }
     setReposScanned(true);
   }

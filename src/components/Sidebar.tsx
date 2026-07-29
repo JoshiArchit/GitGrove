@@ -21,7 +21,7 @@ const Sidebar = ({
   activeRepo,
 }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
-  const { repoList, updateRepoList, addScannedRoot } = usePersistedRepoList();
+  const { repoList, updateRepoListAndRoot } = usePersistedRepoList();
 
   /**
    * Merges two lists of repositories, ensuring that there are no duplicates based on the repository path.
@@ -48,8 +48,7 @@ const Sidebar = ({
     const result = await invoke<RepoEntry[]>("scan_repos", {
       rootDirectory: path,
     });
-    updateRepoList(mergeRepos(repoList, result));
-    addScannedRoot(path);
+    updateRepoListAndRoot(mergeRepos(repoList, result), path);
     setReposScanned(true);
   }
 
@@ -58,12 +57,11 @@ const Sidebar = ({
    * @param path The path to the repository to fetch.
    */
   async function getRepo(path: string) {
-    const result = await invoke<RepoEntry>("get_repo_from_path", {
+    const result = await invoke<RepoEntry | null>("get_repo_from_path", {
       path: path,
     });
-
     if (result) {
-      updateRepoList(mergeRepos(repoList, [result]));
+      updateRepoListAndRoot(mergeRepos(repoList, [result]));
     }
     setReposScanned(true);
   }

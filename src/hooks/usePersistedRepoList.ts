@@ -22,13 +22,17 @@ export function usePersistedRepoList() {
 
       // Get persisted data
       let persistedData = await store.get<PersistedRepoState>(STORE_KEY);
+      console.log(
+        "Loaded persisted repo list and scanned roots from store:",
+        persistedData,
+      );
       if (!persistedData) return;
 
-      // Re-validate persisted data against disk, drop what doesnt resolve anymore
+      // Re-validate pernpm run sisted data against disk, drop what doesnt resolve anymore
       const validated = await Promise.all(
         persistedData.repos.map((repo) =>
           invoke<RepoEntry | null>("get_repo_from_path", {
-            directory: repo.path,
+            path: repo.path,
           }),
         ),
       );
@@ -53,18 +57,17 @@ export function usePersistedRepoList() {
     } satisfies PersistedRepoState);
 
     await store.save();
+    console.log("Persisted repo list and scanned roots to store.");
   }
 
-  function updateRepoList(repos: RepoEntry[]) {
+  function updateRepoListAndRoot(repos: RepoEntry[], root?: string) {
+    const updatedRoots = root
+      ? [...new Set([...scannedRoots, root])]
+      : scannedRoots;
     setRepoListState(repos);
-    persist(repos, scannedRoots);
-  }
-
-  function addScannedRoot(root: string) {
-    const updatedRoots = [...new Set([...scannedRoots, root])];
     setScannedRootsState(updatedRoots);
-    persist(repoList, updatedRoots);
+    persist(repos, updatedRoots);
   }
 
-  return { repoList, updateRepoList, scannedRoots, addScannedRoot };
+  return { repoList, updateRepoListAndRoot, scannedRoots };
 }

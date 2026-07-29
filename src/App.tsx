@@ -5,11 +5,13 @@ import ContributionGraph from "./components/ContributionGraph";
 import RepoSummaryData from "./components/RepoSummary/RepoSummary";
 import Sidebar from "./components/Sidebar";
 import WelcomeScreen from "./components/WelcomeScreen";
+import { usePersistedRepoList } from "./hooks/usePersistedRepoList";
 import type { RepoEntry } from "./types/repo.types";
 
 function App() {
   const [activeRepo, setActiveRepo] = useState<RepoEntry>();
-  const [reposScanned, setReposScanned] = useState<boolean>(false);
+  const { repoList, updateRepoListAndRoot } = usePersistedRepoList();
+  const reposScanned = repoList.length > 0;
 
   return (
     <div className="relative flex h-screen min-h-120 w-screen min-w-160 gap-4 bg-black p-3 font-mono">
@@ -18,8 +20,9 @@ function App() {
       <aside className="absolute inset-y-3 left-3 z-10">
         <Sidebar
           setActiveRepo={setActiveRepo}
-          setReposScanned={setReposScanned}
           activeRepo={activeRepo}
+          repoList={repoList}
+          updateRepoListAndRoot={updateRepoListAndRoot}
         />
       </aside>
       {/* TODO: If the number of components in <main> increases, consider making a wrapper component. */}

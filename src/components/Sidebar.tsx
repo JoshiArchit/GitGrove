@@ -2,13 +2,13 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderCode, FolderGit2, PanelRight, Sprout } from "lucide-react";
 import { useState } from "react";
-import { usePersistedRepoList } from "../hooks/usePersistedRepoList";
 import { RepoEntry } from "../types/repo.types";
 
 type SidebarProps = {
   setActiveRepo: (repo: RepoEntry) => void;
-  setReposScanned: (scanned: boolean) => void;
   activeRepo: RepoEntry | undefined;
+  repoList: RepoEntry[];
+  updateRepoListAndRoot: (repos: RepoEntry[], root?: string) => void;
 };
 
 /**
@@ -17,11 +17,11 @@ type SidebarProps = {
  */
 const Sidebar = ({
   setActiveRepo,
-  setReposScanned,
   activeRepo,
+  repoList,
+  updateRepoListAndRoot,
 }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
-  const { repoList, updateRepoListAndRoot } = usePersistedRepoList();
 
   /**
    * Merges two lists of repositories, ensuring that there are no duplicates based on the repository path.
@@ -49,7 +49,6 @@ const Sidebar = ({
       rootDirectory: path,
     });
     updateRepoListAndRoot(mergeRepos(repoList, result), path);
-    setReposScanned(true);
   }
 
   /**
@@ -63,7 +62,6 @@ const Sidebar = ({
     if (result) {
       updateRepoListAndRoot(mergeRepos(repoList, [result]));
     }
-    setReposScanned(true);
   }
 
   /**

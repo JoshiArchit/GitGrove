@@ -28,3 +28,11 @@ export type RepoSummaryData = {
   last_commit_date: string; // YYYY-MM-DD
   languages: Record<string, number>; // language name -> code line count (via tokei)
 };
+
+/**
+ * Persisted state of scanned repositories, used to restore the app's state on restart.
+ */
+export type PersistedRepoState = {
+  scannedRoots: string[];
+  repos: RepoEntry[];
+};

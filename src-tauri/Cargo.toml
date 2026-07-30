@@ -26,6 +26,7 @@ chrono = { version = "0.4", features = ["serde"] }
 walkdir = "2"
 tauri-plugin-dialog = "2.7.2"
 tokei = "14.0.0"
+tauri-plugin-store = "2"
 
 [dev-dependencies]
 tempfile = "3.27.0"

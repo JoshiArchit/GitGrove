@@ -6,8 +6,9 @@ import { RepoEntry } from "../types/repo.types";
 
 type SidebarProps = {
   setActiveRepo: (repo: RepoEntry) => void;
-  setReposScanned: (scanned: boolean) => void;
   activeRepo: RepoEntry | undefined;
+  repoList: RepoEntry[];
+  updateRepoListAndRoot: (repos: RepoEntry[], root?: string) => void;
 };
 
 /**
@@ -16,29 +17,51 @@ type SidebarProps = {
  */
 const Sidebar = ({
   setActiveRepo,
-  setReposScanned,
   activeRepo,
+  repoList,
+  updateRepoListAndRoot,
 }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
-  const [repoList, setRepoList] = useState<RepoEntry[]>([]);
 
+  /**
+   * Merges two lists of repositories, ensuring that there are no duplicates based on the repository path.
+   * @param existing The existing list of repositories.
+   * @param incoming The incoming list of repositories to merge.
+   * @returns A new list of repositories with duplicates removed.
+   */
+  function mergeRepos(
+    existing: RepoEntry[],
+    incoming: RepoEntry[],
+  ): RepoEntry[] {
+    const byPath = new Map(existing.map((r) => [r.path, r]));
+    for (const repo of incoming) {
+      byPath.set(repo.path, repo);
+    }
+    return Array.from(byPath.values());
+  }
+
+  /**
+   * Gets a list of repositories from the specified root directory and updates the state with the result.
+   * @param path The path to the root directory to scan.
+   */
   async function getRepoList(path: string) {
     const result = await invoke<RepoEntry[]>("scan_repos", {
       rootDirectory: path,
     });
-    setRepoList(result);
-    setReposScanned(true);
+    updateRepoListAndRoot(mergeRepos(repoList, result), path);
   }
 
+  /**
+   * Gets a single repository from the specified path and updates the state with the result.
+   * @param path The path to the repository to fetch.
+   */
   async function getRepo(path: string) {
-    const result = await invoke<RepoEntry>("get_repo_from_path", {
+    const result = await invoke<RepoEntry | null>("get_repo_from_path", {
       path: path,
     });
-
     if (result) {
-      setRepoList([...repoList, result]);
+      updateRepoListAndRoot(mergeRepos(repoList, [result]));
     }
-    setReposScanned(true);
   }
 
   /**

@@ -12,9 +12,9 @@ export enum WorkItemtype {
  * This can be used to track the progress of a work item through different stages.
  */
 export enum Status {
-  Backlog,
-  InProgress,
-  Done,
+  Backlog = "Backlog",
+  InProgress = "In Progress",
+  Done = "Done",
 }
 
 /**

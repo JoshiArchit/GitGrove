@@ -4,6 +4,7 @@ import ContributionGraph from "./components/ContributionGraph";
 import RepoSummaryData from "./components/RepoSummary/RepoSummary";
 import Sidebar from "./components/Sidebar";
 import Taskboard from "./components/Taskboard/Taskboard";
+import Taskboard from "./components/Taskboard/Taskboard";
 import WelcomeScreen from "./components/WelcomeScreen";
 import { usePersistedRepoList } from "./hooks/usePersistedRepoList";
 import { useSelectedRepoStore } from "./stores/selectedRepoStore";

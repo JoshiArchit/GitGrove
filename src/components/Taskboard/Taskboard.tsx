@@ -7,6 +7,7 @@ import TaskForm from "./TaskForm";
 
 const Taskboard = () => {
   const selectedRepo = useSelectedRepoStore((s) => s.repo);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   // TODO: Add a warning modal/callout for displaying errors (decision model approach using enums to resolve messages for a common callout component?)
   const items = useTaskBoardStore((s) =>
@@ -23,7 +24,7 @@ const Taskboard = () => {
       <section className="flex items-center justify-between">
         <h1>Tasks</h1>
         <button
-          className="rounded-lg border-2 border-gray-700 bg-green-600 p-2 transition-all duration-300 hover:bg-green-700"
+          className="btn-primary"
           onClick={() => dialogRef.current?.showModal()}
         >
           Add Item

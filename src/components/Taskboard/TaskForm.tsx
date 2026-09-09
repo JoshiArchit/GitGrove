@@ -12,8 +12,10 @@ const TaskForm = ({ repoPath, onClose }: TaskFormProps) => {
   }
   return (
     <form onSubmit={handleSubmit}>
-      <h2>TaskForm</h2>
-      <button type="submit">Submit</button>
+      <h1 className="text-2xl font-medium">Add New Task</h1>
+      <button type="submit" className="btn-primary">
+        Submit
+      </button>
     </form>
   );
 };

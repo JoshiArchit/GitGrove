@@ -118,7 +118,7 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
         <button
           onClick={() => getRootDirectoryPath(true)}
           title="Scan for Repos"
-          className={`flex items-center justify-center overflow-hidden rounded-lg border border-transparent bg-green-600 p-2 text-sm transition-all duration-300 hover:cursor-pointer hover:bg-green-700 active:scale-95 active:bg-green-800 ${collapsed ? "" : "w-full"}`}
+          className={`btn-primary flex items-center justify-center overflow-hidden text-sm ${collapsed ? "" : "w-full"}`}
         >
           <FolderGit2 className="shrink-0" />
           <span
@@ -130,7 +130,7 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
         <button
           onClick={() => getRootDirectoryPath(false)}
           title="Add a single repo"
-          className={`flex items-center justify-center overflow-hidden rounded-lg border border-gray-500 bg-transparent p-2 text-sm transition-all duration-300 hover:cursor-pointer hover:bg-gray-800 ${collapsed ? "" : "w-full"}`}
+          className={`btn-secondary flex items-center justify-center overflow-hidden text-sm ${collapsed ? "" : "w-full"}`}
         >
           <FolderCode className="shrink-0" />
           <span

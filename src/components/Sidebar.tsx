@@ -2,11 +2,10 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderCode, FolderGit2, PanelRight, Sprout } from "lucide-react";
 import { useState } from "react";
+import { useSelectedRepoStore } from "../stores/selectedRepoStore";
 import { RepoEntry } from "../types/repo.types";
 
 type SidebarProps = {
-  setActiveRepo: (repo: RepoEntry) => void;
-  activeRepo: RepoEntry | undefined;
   repoList: RepoEntry[];
   updateRepoListAndRoot: (repos: RepoEntry[], root?: string) => void;
 };
@@ -15,12 +14,8 @@ type SidebarProps = {
  * A sidebar component that displays a list of git repositories, a button to scan a root directory and selecting a repository to view its details.
  * @returns The rendered sidebar component.
  */
-const Sidebar = ({
-  setActiveRepo,
-  activeRepo,
-  repoList,
-  updateRepoListAndRoot,
-}: SidebarProps) => {
+const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
+  const activeRepo = useSelectedRepoStore((s) => s.repo);
   const [collapsed, setCollapsed] = useState(true);
 
   /**
@@ -80,7 +75,7 @@ const Sidebar = ({
   }
 
   function handleSetActiveRepo(repo: RepoEntry) {
-    setActiveRepo(repo);
+    useSelectedRepoStore.getState().setSelectedRepo(repo);
     setCollapsed(true);
   }
 

@@ -1,12 +1,13 @@
 import { Sprout } from "lucide-react";
-import { RepoEntry } from "../types/repo.types";
+import { useSelectedRepoStore } from "../stores/selectedRepoStore";
 
 type WelcomeScreenProps = {
   reposScanned: boolean;
-  activeRepo: RepoEntry | undefined;
 };
 
-const WelcomeScreen = ({ reposScanned, activeRepo }: WelcomeScreenProps) => {
+const WelcomeScreen = ({ reposScanned }: WelcomeScreenProps) => {
+  const activeRepo = useSelectedRepoStore((s) => s.repo);
+
   return (
     <section
       id="welcome-screen"

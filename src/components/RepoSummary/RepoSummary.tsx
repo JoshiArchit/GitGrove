@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import type { EChartsOption } from "echarts";
 import * as echarts from "echarts";
@@ -13,34 +12,14 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { RepoEntry, RepoSummaryData } from "../../types/repo.types";
+import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import StatCard from "./StatCard";
 
-type RepoSummaryProps = {
-  selectedRepo: RepoEntry;
-};
-
-const RepoSummary = ({ selectedRepo }: RepoSummaryProps) => {
-  const [repoSummary, setRepoSummary] = useState<RepoSummaryData | undefined>(
-    undefined,
-  );
+const RepoSummary = () => {
+  const repoSummary = useSelectedRepoStore((s) => s.summary);
   const [collapsed, setCollapsed] = useState<boolean>(false);
   const chartDivRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
-
-  useEffect(() => {
-    if (!selectedRepo) return;
-    setRepoSummary(undefined);
-
-    async function getRepoSummary() {
-      const result = await invoke<RepoSummaryData>("get_repo_summary", {
-        repoPath: selectedRepo?.path,
-      });
-      setRepoSummary(result);
-    }
-
-    getRepoSummary();
-  }, [selectedRepo]);
 
   // Sets up the graph and disposes on unmount
   useEffect(() => {
@@ -164,7 +143,7 @@ const RepoSummary = ({ selectedRepo }: RepoSummaryProps) => {
               <StatCard
                 icon={<GitBranch className="h-4 w-4" />}
                 title="Branches"
-                value={repoSummary?.branch_count ?? 0}
+                value={repoSummary?.branches.length ?? 0}
               />
 
               <StatCard

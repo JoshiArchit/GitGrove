@@ -30,7 +30,7 @@ const MOCK_CONTRIBUTIONS: Contributions = {
 const MOCK_SUMMARY: RepoSummaryData = {
   current_branch: "feat/mock-data",
   remote_url: "https://github.com/JoshiArchit/GitGrove.git",
-  branch_count: 3,
+  branches: ["feat/mock-data", "main", "dev"],
   total_commits: 42,
   first_commit_date: "2026-06-01",
   last_commit_date: "2026-07-27",

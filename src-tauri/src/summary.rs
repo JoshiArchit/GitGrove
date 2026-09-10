@@ -18,7 +18,7 @@ use tokei::{Config, Languages};
 pub struct RepoSummary {
     pub current_branch: String,
     pub remote_url: Option<String>, // If no origin set yet
-    pub branch_count: u32,
+    pub branches: Vec<String>,      // List of branch names
     pub total_commits: u32,
     pub first_commit_date: String,         // YYYY-MM-DD
     pub last_commit_date: String,          // YYYY-MM-DD
@@ -37,7 +37,10 @@ pub fn get_repo_summary(repo_path: String, excluded: Option<Vec<String>>) -> Rep
         Some(remote_url)
     };
 
-    let branch_count = run_git(&repo_path, &["branch", "--list"]).lines().count() as u32;
+    let branches: Vec<String> = run_git(&repo_path, &["branch", "--format=%(refname:short)"])
+        .lines()
+        .map(|s| s.to_string())
+        .collect();
 
     let total_commits = run_git(&repo_path, &["rev-list", "--count", "HEAD"])
         .parse::<u32>()
@@ -62,7 +65,7 @@ pub fn get_repo_summary(repo_path: String, excluded: Option<Vec<String>>) -> Rep
     RepoSummary {
         current_branch,
         remote_url,
-        branch_count,
+        branches,
         total_commits,
         first_commit_date,
         last_commit_date,
@@ -168,7 +171,7 @@ mod tests {
             summary.remote_url,
             Some("https://github.com/example/repo.git".to_string())
         );
-        assert_eq!(summary.branch_count, 2);
+        assert_eq!(summary.branches, vec!["other-branch", "test-branch"]);
         assert_eq!(summary.total_commits, 2);
         assert_eq!(summary.first_commit_date, today);
         assert_eq!(summary.last_commit_date, today);

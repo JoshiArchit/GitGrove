@@ -4,11 +4,8 @@ import * as echarts from "echarts";
 import { ChevronDown } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Contributions, RepoEntry } from "../types/repo.types";
-
-type ContributionGraphProps = {
-  selectedRepo: RepoEntry | undefined;
-};
+import { useSelectedRepoStore } from "../stores/selectedRepoStore";
+import { Contributions } from "../types/repo.types";
 
 function buildCalendarData(contributions: Contributions): [string, number][] {
   return Object.entries(contributions.contributions);
@@ -20,7 +17,8 @@ function displayName(email: string): string {
   return match ? match[1] : email.split("@")[0];
 }
 
-const ContributionGraph = ({ selectedRepo }: ContributionGraphProps) => {
+const ContributionGraph = () => {
+  const selectedRepo = useSelectedRepoStore((s) => s.repo);
   const chartDivRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
   const [contributions, setContributions] = useState<Contributions | null>(

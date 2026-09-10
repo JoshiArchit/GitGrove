@@ -22,7 +22,7 @@ export type Contributions = {
 export type RepoSummaryData = {
   current_branch: string;
   remote_url: string; // If no origin set yet
-  branch_count: number;
+  branches: string[];
   total_commits: number;
   first_commit_date: string; // YYYY-MM-DD
   last_commit_date: string; // YYYY-MM-DD

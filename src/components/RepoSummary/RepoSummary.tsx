@@ -143,7 +143,7 @@ const RepoSummary = () => {
               <StatCard
                 icon={<GitBranch className="h-4 w-4" />}
                 title="Branches"
-                value={repoSummary?.branch_count ?? 0}
+                value={repoSummary?.branches.length ?? 0}
               />
 
               <StatCard

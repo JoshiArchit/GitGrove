@@ -2,8 +2,8 @@
  * Enum representing the type of a work item.
  */
 export enum WorkItemtype {
-  Story,
-  Bug,
+  Story = "Story",
+  Bug = "Bug",
 }
 
 // TODO: Extensibility - Do we need New, Committed, Code Review, Ready for Testing, In Test?

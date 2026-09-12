@@ -15,3 +15,7 @@
 @utility btn-secondary {
   @apply rounded-lg border border-gray-500 bg-gray-600 p-2 text-sm transition-all duration-300 hover:cursor-pointer hover:bg-gray-700 active:bg-gray-800;
 }
+
+@utility btn-cancel {
+  @apply rounded-lg border border-transparent bg-red-600 p-2 transition-all duration-300 hover:cursor-pointer hover:bg-red-700 active:bg-red-800;
+}

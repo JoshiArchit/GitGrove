@@ -3,7 +3,7 @@ import "./App.css";
 import ContributionGraph from "./components/ContributionGraph";
 import RepoSummaryData from "./components/RepoSummary/RepoSummary";
 import Sidebar from "./components/Sidebar";
-import Taskboard from "./components/Taskboard/Taskboard";
+import Board from "./components/WorkItemBoard/Board";
 import WelcomeScreen from "./components/WelcomeScreen";
 import { usePersistedRepoList } from "./hooks/usePersistedRepoList";
 import { useSelectedRepoStore } from "./stores/selectedRepoStore";
@@ -45,7 +45,7 @@ function App() {
             >
               <RepoSummaryData />
               <ContributionGraph />
-              <Taskboard />
+              <Board />
             </motion.div>
           )}
         </AnimatePresence>

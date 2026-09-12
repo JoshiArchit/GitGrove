@@ -1,29 +1,29 @@
 import React from "react";
-import { useTaskBoardStore } from "../../store/taskBoardStore";
+import { useWorkItemBoardStore } from "../../store/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { Status, WorkItem, WorkItemtype } from "../../types/board.types";
 
-type TaskFormProps = {
+type WorkItemFormProps = {
   onClose: () => void;
 };
 
-type TaskFormValues = {
+type WorkItemFormValues = {
   title: string;
   description: string;
   branch: string;
   type: WorkItemtype;
 };
 
-const TaskForm = ({ onClose }: TaskFormProps) => {
+const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
   const branches = useSelectedRepoStore((s) => s.summary?.branches);
   const repoPath = useSelectedRepoStore((s) => s.repo!.path);
-  const addItem = useTaskBoardStore((s) => s.addItem);
+  const addItem = useWorkItemBoardStore((s) => s.addItem);
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     //  Convert FormData to an object for easier handling
-    const data = Object.fromEntries(formData) as unknown as TaskFormValues;
+    const data = Object.fromEntries(formData) as unknown as WorkItemFormValues;
 
     // Create a WorkItem
     const workItem: WorkItem = {
@@ -106,4 +106,4 @@ const TaskForm = ({ onClose }: TaskFormProps) => {
   );
 };
 
-export default TaskForm;
+export default WorkItemForm;

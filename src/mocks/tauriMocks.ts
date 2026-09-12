@@ -56,4 +56,12 @@ export function installTauriMocks() {
         return undefined;
     }
   });
+
+  // Dev console helper: run `clearDevData()` to wipe persisted zustand stores
+  // (e.g. accumulated Taskboard items from prior test sessions) without
+  // digging through devtools' Application tab.
+  (window as unknown as { clearDevData: () => void }).clearDevData = () => {
+    localStorage.removeItem("gitgrove-board");
+    console.log("Cleared gitgrove-board. Refresh to see a clean board.");
+  };
 }

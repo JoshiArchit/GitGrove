@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useTaskBoardStore } from "../../store/taskBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { Status } from "../../types/board.types";
@@ -8,6 +8,11 @@ import TaskForm from "./TaskForm";
 const Taskboard = () => {
   const selectedRepo = useSelectedRepoStore((s) => s.repo);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const closeDialog = () => {
+    dialogRef.current?.close();
+    setIsFormOpen(false);
+  };
 
   // TODO: Add a warning modal/callout for displaying errors (decision model approach using enums to resolve messages for a common callout component?)
   const items = useTaskBoardStore((s) =>
@@ -25,7 +30,10 @@ const Taskboard = () => {
         <h1>Tasks</h1>
         <button
           className="btn-primary"
-          onClick={() => dialogRef.current?.showModal()}
+          onClick={() => {
+            setIsFormOpen(true);
+            dialogRef.current?.showModal();
+          }}
         >
           Add Item
         </button>
@@ -33,12 +41,10 @@ const Taskboard = () => {
 
       <dialog
         ref={dialogRef}
+        onCancel={closeDialog}
         className="m-auto rounded-lg bg-gray-900 p-6 text-white backdrop:bg-black/90"
       >
-        <TaskForm
-          repoPath={selectedRepo.path}
-          onClose={() => dialogRef.current?.close()}
-        />
+        {isFormOpen && <TaskForm onClose={closeDialog} />}
       </dialog>
 
       <section className="flex min-h-32 w-full justify-between gap-2">

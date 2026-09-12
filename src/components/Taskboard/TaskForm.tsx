@@ -3,17 +3,18 @@ import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { WorkItemtype } from "../../types/board.types";
 
 type TaskFormProps = {
-  repoPath: string;
   onClose: () => void;
 };
 
-const TaskForm = ({ repoPath, onClose }: TaskFormProps) => {
+const TaskForm = ({ onClose }: TaskFormProps) => {
   const branches = useSelectedRepoStore((s) => s.summary?.branches);
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     console.log(Object.fromEntries(formData));
+    //  Reset the form after submission
+    e.currentTarget.reset();
     onClose();
   }
 
@@ -43,6 +44,7 @@ const TaskForm = ({ repoPath, onClose }: TaskFormProps) => {
         <div className="flex w-1/2 flex-col items-start justify-center gap-2">
           <label htmlFor="branch">Select a branch</label>
           <select
+            id="branch"
             name="branch"
             className="w-full rounded-2xl border-2 border-solid border-gray-500 px-4 py-2 focus-visible:outline-none"
           >
@@ -55,11 +57,12 @@ const TaskForm = ({ repoPath, onClose }: TaskFormProps) => {
         <div className="flex w-1/2 flex-col items-start justify-center gap-2">
           <label htmlFor="workitem-type">Select work item type</label>
           <select
+            id="workitem-type"
             name="workitem-type"
             className="w-full rounded-2xl border-2 border-solid border-gray-500 px-4 py-2 focus-visible:outline-none"
           >
             {Object.values(WorkItemtype).map((e) => {
-              return <option>{e}</option>;
+              return <option key={e}>{e}</option>;
             })}
           </select>
         </div>

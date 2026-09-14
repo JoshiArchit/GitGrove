@@ -1,0 +1,18 @@
+import { WorkItemtype } from "../types/board.types";
+
+type WorkItemColors = {
+  bullet: string;
+  borderTop: string;
+};
+
+const WORK_ITEM_COLORS: Record<WorkItemtype, WorkItemColors> = {
+  [WorkItemtype.Story]: {
+    bullet: "bg-blue-500",
+    borderTop: "border-t-blue-500",
+  },
+  [WorkItemtype.Bug]: { bullet: "bg-red-500", borderTop: "border-t-red-500" },
+};
+
+export function resolveWorkItemColor(type: WorkItemtype): WorkItemColors {
+  return WORK_ITEM_COLORS[type];
+}

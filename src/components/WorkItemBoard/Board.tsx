@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
-import { useTaskBoardStore } from "../../store/taskBoardStore";
+import { useWorkItemBoardStore } from "../../store/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { Status } from "../../types/board.types";
 import BoardColumn from "./BoardColumn";
-import TaskForm from "./TaskForm";
+import WorkItemForm from "./WorkItemForm";
 
-const Taskboard = () => {
+const Board = () => {
   const selectedRepo = useSelectedRepoStore((s) => s.repo);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -15,7 +15,7 @@ const Taskboard = () => {
   };
 
   // TODO: Add a warning modal/callout for displaying errors (decision model approach using enums to resolve messages for a common callout component?)
-  const items = useTaskBoardStore((s) =>
+  const items = useWorkItemBoardStore((s) =>
     selectedRepo ? s.getItems(selectedRepo.path) : [],
   );
   if (!selectedRepo) return null;
@@ -44,7 +44,7 @@ const Taskboard = () => {
         onCancel={closeDialog}
         className="m-auto rounded-lg bg-gray-900 p-6 text-white backdrop:bg-black/90"
       >
-        {isFormOpen && <TaskForm onClose={closeDialog} />}
+        {isFormOpen && <WorkItemForm onClose={closeDialog} />}
       </dialog>
 
       <section className="flex min-h-32 w-full justify-between gap-2">
@@ -59,4 +59,4 @@ const Taskboard = () => {
   );
 };
 
-export default Taskboard;
+export default Board;

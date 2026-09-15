@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { WorkItem } from "../types/board.types";
 import { persist } from "zustand/middleware";
 
-type TaskBoardStore = {
+type WorkItemBoardStore = {
   boards: Record<string, WorkItem[]>;
   addItem: (repoPath: string, item: WorkItem) => void;
   updateItem: (
@@ -22,7 +22,7 @@ const EMPTY_ITEMS: WorkItem[] = []; // Constant to represent empty list of items
  * The store provides methods to add, update, delete, and retrieve work items for a specific repository.
  * DEV NOTE: Using as many comments as I can since this is my first time using Zustand and I want to make sure I understand and document the code well.
  */
-export const useTaskBoardStore = create<TaskBoardStore>()(
+export const useWorkItemBoardStore = create<WorkItemBoardStore>()(
   persist(
     (set, get) => ({
       boards: {},

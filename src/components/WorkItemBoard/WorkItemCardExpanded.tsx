@@ -3,13 +3,14 @@ import React from "react";
 import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
 import { useWorkItemBoardStore } from "../../store/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
-import { WorkItem } from "../../types/board.types";
+import { Status, WorkItem } from "../../types/board.types";
 
 type WorkItemCardExpandedProps = {
   item: WorkItem;
   isDirty: boolean;
   onDirtyChange: (isDirty: boolean) => void;
   onRequestClose: (e?: React.SyntheticEvent) => void;
+  onSaved: () => void;
 };
 
 const WorkItemCardExpanded = ({
@@ -17,6 +18,7 @@ const WorkItemCardExpanded = ({
   isDirty,
   onDirtyChange,
   onRequestClose,
+  onSaved,
 }: WorkItemCardExpandedProps) => {
   const repoPath = useSelectedRepoStore((s) => s.repo!.path);
   const updateItem = useWorkItemBoardStore((s) => s.updateItem);
@@ -26,7 +28,9 @@ const WorkItemCardExpanded = ({
   function checkDirty(form: HTMLFormElement) {
     const data = Object.fromEntries(new FormData(form));
     const changed =
-      data.title !== item.title || data.description !== item.description;
+      data.title !== item.title ||
+      data.description !== item.description ||
+      data.status !== item.status;
     onDirtyChange(changed);
   }
 
@@ -36,15 +40,17 @@ const WorkItemCardExpanded = ({
     const data = Object.fromEntries(formData) as unknown as {
       title: string;
       description: string;
+      status: Status;
     };
 
     updateItem(repoPath, item.id, {
       title: data.title,
       description: data.description,
+      status: data.status,
     });
 
     onDirtyChange(false);
-    onRequestClose();
+    onSaved();
   }
 
   function handleDelete() {
@@ -53,7 +59,7 @@ const WorkItemCardExpanded = ({
 
     deleteItem(repoPath, item.id);
     onDirtyChange(false);
-    onRequestClose();
+    onSaved();
   }
 
   return (
@@ -78,6 +84,21 @@ const WorkItemCardExpanded = ({
         onChange={(e) => checkDirty(e.currentTarget)}
         className="flex flex-col gap-4"
       >
+        <div className="flex flex-col gap-2">
+          <label htmlFor="status" className="text-white">
+            Status
+          </label>
+          <select
+            id="status"
+            name="status"
+            className="w-max rounded-2xl border-2 border-solid border-gray-500 px-4 py-2 text-white focus-visible:outline-none"
+            defaultValue={item.status}
+          >
+            {Object.values(Status).map((e) => {
+              return <option key={e}>{e}</option>;
+            })}
+          </select>
+        </div>
         <input
           type="text"
           name="title"
@@ -94,7 +115,11 @@ const WorkItemCardExpanded = ({
         ></textarea>
 
         <div className="flex items-center justify-end gap-4 text-white">
-          <button className="btn-primary" type="submit" disabled={!isDirty}>
+          <button
+            className="btn-primary disabled:btn-disabled"
+            type="submit"
+            disabled={!isDirty}
+          >
             Save
           </button>
           <button type="button" className="btn-cancel" onClick={onRequestClose}>

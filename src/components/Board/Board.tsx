@@ -42,7 +42,7 @@ const Board = () => {
       <dialog
         ref={dialogRef}
         onCancel={closeDialog}
-        className="m-auto rounded-lg bg-gray-900 p-6 text-white backdrop:bg-black/90"
+        className="m-auto rounded-lg bg-gray-900 p-6 text-white backdrop:backdrop:bg-gray-900/60"
       >
         {isFormOpen && <WorkItemForm onClose={closeDialog} />}
       </dialog>

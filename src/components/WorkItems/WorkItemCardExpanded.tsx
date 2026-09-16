@@ -1,9 +1,11 @@
 import { SquareXIcon } from "lucide-react";
-import React from "react";
+import React, { useRef } from "react";
 import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
 import { useWorkItemBoardStore } from "../../store/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { Status, WorkItem } from "../../types/board.types";
+import TaskCard from "../Tasks/TaskCard";
+import TaskForm from "../Tasks/TaskForm";
 
 type WorkItemCardExpandedProps = {
   item: WorkItem;
@@ -24,6 +26,8 @@ const WorkItemCardExpanded = ({
   const updateItem = useWorkItemBoardStore((s) => s.updateItem);
   const deleteItem = useWorkItemBoardStore((s) => s.deleteItem);
   const itemColor = resolveWorkItemColor(item.type);
+
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   function checkDirty(form: HTMLFormElement) {
     const data = Object.fromEntries(new FormData(form));
@@ -62,6 +66,10 @@ const WorkItemCardExpanded = ({
     onSaved();
   }
 
+  function closeTaskFormDialog() {
+    dialogRef.current?.close();
+  }
+
   return (
     <div
       className={`shadow-card-elevation-2 flex min-w-[75vw] flex-col gap-2 overflow-auto border-t-8 bg-gray-800 px-6 py-4 ${itemColor.borderTop}`}
@@ -70,13 +78,33 @@ const WorkItemCardExpanded = ({
         <span className="font-semibold tracking-widest text-white uppercase">
           {item.type}
         </span>
-        <button
-          type="button"
-          onClick={onRequestClose}
-          className="text-gray-300 transition-all duration-300 hover:cursor-pointer hover:text-white"
-        >
-          <SquareXIcon className="size-8 rounded-lg" />
-        </button>
+
+        <div className="flex items-center justify-end gap-4 text-white">
+          <button
+            className="btn-primary disabled:btn-disabled"
+            type="submit"
+            disabled={!isDirty}
+          >
+            Save
+          </button>
+          <button type="button" className="btn-cancel" onClick={onRequestClose}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={handleDelete}
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            onClick={onRequestClose}
+            className="text-gray-300 transition-all duration-300 hover:cursor-pointer hover:text-white"
+          >
+            <SquareXIcon className="size-8 rounded-lg" />
+          </button>
+        </div>
       </div>
 
       <form
@@ -104,36 +132,50 @@ const WorkItemCardExpanded = ({
           name="title"
           defaultValue={item.title}
           required
-          className="w-full rounded-xl border-2 border-solid border-gray-500 px-4 py-2 text-white transition-all duration-200 focus-visible:border-blue-200 focus-visible:bg-gray-500 focus-visible:outline-none"
+          className="input-element"
         />
 
         <textarea
           name="description"
           placeholder="Add description"
           defaultValue={item.description}
-          className="max-h-3/4 w-full rounded-xl border-2 border-solid border-gray-500 px-4 py-2 text-white transition-all duration-200 focus-visible:border-blue-200 focus-visible:bg-gray-500 focus-visible:outline-none"
+          className="input-element max-h-3/4"
         ></textarea>
+        <hr className="h-0.5 w-full bg-white" />
 
-        <div className="flex items-center justify-end gap-4 text-white">
-          <button
-            className="btn-primary disabled:btn-disabled"
-            type="submit"
-            disabled={!isDirty}
-          >
-            Save
-          </button>
-          <button type="button" className="btn-cancel" onClick={onRequestClose}>
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handleDelete}
-          >
-            Delete
-          </button>
-        </div>
+        <section className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold tracking-widest text-white uppercase">
+              Tasks
+            </span>
+            <button
+              type="button"
+              className="btn-primary text-white"
+              onClick={() => dialogRef.current?.showModal()}
+            >
+              Add Task
+            </button>
+          </div>
+
+          <section className="flex max-h-64 flex-col gap-4 overflow-auto rounded-xl border border-gray-500 px-2 py-2">
+            <div className="rounded-lg border-2 border-l-6 border-gray-400 border-l-amber-400 px-2 py-1 text-white hover:border-black hover:bg-amber-100 hover:text-black">
+              Task 1
+            </div>
+            <div>Task 2</div>
+            <div>Task 3</div>
+            {item.tasks.map((task) => {
+              return <TaskCard key={task.id} task={task} />;
+            })}
+          </section>
+        </section>
       </form>
+
+      <dialog
+        className="m-auto rounded-xl backdrop:bg-gray-900/60"
+        ref={dialogRef}
+      >
+        <TaskForm onCancel={closeTaskFormDialog} />
+      </dialog>
     </div>
   );
 };

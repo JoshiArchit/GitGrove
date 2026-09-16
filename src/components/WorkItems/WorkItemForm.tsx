@@ -56,13 +56,13 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
           name="title"
           placeholder="Enter title for the task"
           required
-          className="w-full rounded-xl border-2 border-solid border-gray-500 px-4 py-2 transition-all duration-200 focus-visible:border-blue-200 focus-visible:bg-gray-500 focus-visible:outline-none"
+          className="input-element"
         />
 
         <textarea
           name="description"
           placeholder="Add description"
-          className="max-h-3/4 w-full rounded-xl border-2 border-solid border-gray-500 px-4 py-2 transition-all duration-200 focus-visible:border-blue-200 focus-visible:bg-gray-500 focus-visible:outline-none"
+          className="input-element max-h-3/4"
         ></textarea>
       </div>
 

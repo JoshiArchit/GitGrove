@@ -48,7 +48,7 @@ const WorkItemCard = ({ item }: WorkItemCardProps) => {
       <dialog
         ref={dialogRef}
         onCancel={handleAttemptClose}
-        className="m-auto rounded-xl"
+        className="m-auto rounded-xl backdrop:bg-gray-900/60"
       >
         <WorkItemCardExpanded
           key={instanceKey}

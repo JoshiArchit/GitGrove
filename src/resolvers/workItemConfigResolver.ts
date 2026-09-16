@@ -6,6 +6,7 @@ type WorkItemColors = {
   borderLeft: string;
 };
 
+// TODO: Add icons for task/item types 
 const WORK_ITEM_COLORS: Record<WorkItemtype, WorkItemColors> = {
   [WorkItemtype.Story]: {
     bullet: "bg-blue-500",

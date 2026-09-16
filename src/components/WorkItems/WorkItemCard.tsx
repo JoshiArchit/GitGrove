@@ -39,19 +39,16 @@ const WorkItemCard = ({ item }: WorkItemCardProps) => {
   return (
     <>
       <div
-        className="flex w-full items-center gap-2 rounded-lg border-2 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-400"
+        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-400 ${itemColor.borderLeft}`}
         onClick={openDialog}
       >
-        <span
-          className={`inline-block h-3 w-3 rounded-full ${itemColor.bullet}`}
-        ></span>
         <span>{item.title}</span>
       </div>
 
       <dialog
         ref={dialogRef}
         onCancel={handleAttemptClose}
-        className="m-auto rounded-xl"
+        className="m-auto rounded-xl backdrop:bg-gray-900/60"
       >
         <WorkItemCardExpanded
           key={instanceKey}

@@ -18,13 +18,24 @@ export enum Status {
 }
 
 /**
+ * Enum representing the status of a task.
+ * This can be used to track the progress of a task through different stages.
+ */
+export enum TaskStatus {
+  New = "New",
+  InProgress = "In Progress",
+  Completed = "Completed",
+}
+
+/**
  * Type representing a task associated with a work item.
  * Each task has a unique identifier, a title, and a boolean indicating whether it is done.
  */
 export type Task = {
   id: string;
   title: string;
-  done: boolean;
+  description: string;
+  status: TaskStatus;
 };
 
 /**

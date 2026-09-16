@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useWorkItemBoardStore } from "../../store/workItemBoardStore";
+import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { Status } from "../../types/board.types";
 import BoardColumn from "../Board/BoardColumn";

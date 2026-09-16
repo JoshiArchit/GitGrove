@@ -1,5 +1,5 @@
 import { SquareXIcon } from "lucide-react";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
 import { useWorkItemBoardStore } from "../../store/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
@@ -28,6 +28,8 @@ const WorkItemCardExpanded = ({
   const itemColor = resolveWorkItemColor(item.type);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [isTaskFormDirty, setIsTaskFormDirty] = useState(false);
+  const [taskFormInstanceKey, setTaskFormInstanceKey] = useState(0);
 
   function checkDirty(form: HTMLFormElement) {
     const data = Object.fromEntries(new FormData(form));
@@ -70,6 +72,21 @@ const WorkItemCardExpanded = ({
     dialogRef.current?.close();
   }
 
+  function openTaskFormDialog() {
+    setIsTaskFormDirty(false);
+    setTaskFormInstanceKey((k) => k + 1);
+    dialogRef.current?.showModal();
+  }
+
+  function handleAttemptCloseTaskForm(e?: React.SyntheticEvent) {
+    if (isTaskFormDirty) {
+      e?.preventDefault();
+      const confirmed = window.confirm("Discard unsaved changes?");
+      if (!confirmed) return;
+    }
+    closeTaskFormDialog();
+  }
+
   return (
     <div
       className={`shadow-card-elevation-2 flex min-w-[75vw] flex-col gap-2 overflow-auto border-t-8 bg-gray-800 px-6 py-4 ${itemColor.borderTop}`}
@@ -109,7 +126,7 @@ const WorkItemCardExpanded = ({
 
       <form
         onSubmit={handleSubmit}
-        onChange={(e) => checkDirty(e.currentTarget)}
+        onInput={(e) => checkDirty(e.currentTarget)}
         className="flex flex-col gap-4"
       >
         <div className="flex flex-col gap-2">
@@ -141,40 +158,46 @@ const WorkItemCardExpanded = ({
           defaultValue={item.description}
           className="input-element max-h-3/4"
         ></textarea>
-        <hr className="h-0.5 w-full bg-white" />
-
-        <section className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold tracking-widest text-white uppercase">
-              Tasks
-            </span>
-            <button
-              type="button"
-              className="btn-primary text-white"
-              onClick={() => dialogRef.current?.showModal()}
-            >
-              Add Task
-            </button>
-          </div>
-
-          <section className="flex max-h-64 flex-col gap-4 overflow-auto rounded-xl border border-gray-500 px-2 py-2">
-            <div className="rounded-lg border-2 border-l-6 border-gray-400 border-l-amber-400 px-2 py-1 text-white hover:border-black hover:bg-amber-100 hover:text-black">
-              Task 1
-            </div>
-            <div>Task 2</div>
-            <div>Task 3</div>
-            {item.tasks.map((task) => {
-              return <TaskCard key={task.id} task={task} />;
-            })}
-          </section>
-        </section>
       </form>
+
+      <hr className="h-0.5 w-full bg-white" />
+
+      <section className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold tracking-widest text-white uppercase">
+            Tasks
+          </span>
+          <button
+            type="button"
+            className="btn-primary text-white"
+            onClick={openTaskFormDialog}
+          >
+            Add Task
+          </button>
+        </div>
+
+        <section className="flex max-h-64 flex-col gap-4 overflow-auto rounded-xl border border-gray-500 px-2 py-2">
+          {item.tasks.map((task) => {
+            return (
+              <TaskCard key={task.id} workItemId={item.id} task={task} />
+            );
+          })}
+        </section>
+      </section>
 
       <dialog
         className="m-auto rounded-xl backdrop:bg-gray-900/60"
         ref={dialogRef}
+        onCancel={handleAttemptCloseTaskForm}
       >
-        <TaskForm onCancel={closeTaskFormDialog} />
+        <TaskForm
+          key={taskFormInstanceKey}
+          workItemId={item.id}
+          isDirty={isTaskFormDirty}
+          onDirtyChange={setIsTaskFormDirty}
+          onRequestClose={handleAttemptCloseTaskForm}
+          onSaved={closeTaskFormDialog}
+        />
       </dialog>
     </div>
   );

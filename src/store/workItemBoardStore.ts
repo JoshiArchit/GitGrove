@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { WorkItem } from "../types/board.types";
+import { Task, WorkItem } from "../types/board.types";
 import { persist } from "zustand/middleware";
 
 type WorkItemBoardStore = {
@@ -12,6 +12,14 @@ type WorkItemBoardStore = {
   ) => void;
   deleteItem: (repoPath: string, id: string) => void;
   getItems: (repoPath: string) => WorkItem[];
+  addTask: (repoPath: string, workItemId: string, task: Task) => void;
+  updateTask: (
+    repoPath: string,
+    workItemId: string,
+    taskId: string,
+    updates: Partial<Task>,
+  ) => void;
+  deleteTask: (repoPath: string, workItemId: string, taskId: string) => void;
 };
 
 const EMPTY_ITEMS: WorkItem[] = []; // Constant to represent empty list of items. Using a constant to avoid creating a new empty array every time getItems is called for a repoPath that doesn't exist which results in an infinite loop.
@@ -61,6 +69,50 @@ export const useWorkItemBoardStore = create<WorkItemBoardStore>()(
       },
 
       getItems: (repoPath) => get().boards[repoPath] ?? EMPTY_ITEMS,
+
+      addTask: (repoPath, workItemId, task) => {
+        set((state) => ({
+          boards: {
+            ...state.boards,
+            [repoPath]: (state.boards[repoPath] ?? []).map((item) =>
+              item.id === workItemId
+                ? { ...item, tasks: [...item.tasks, task] }
+                : item,
+            ),
+          },
+        }));
+      },
+
+      updateTask: (repoPath, workItemId, taskId, updates) => {
+        set((state) => ({
+          boards: {
+            ...state.boards,
+            [repoPath]: (state.boards[repoPath] ?? []).map((item) =>
+              item.id === workItemId
+                ? {
+                    ...item,
+                    tasks: item.tasks.map((t) =>
+                      t.id === taskId ? { ...t, ...updates } : t,
+                    ),
+                  }
+                : item,
+            ),
+          },
+        }));
+      },
+
+      deleteTask: (repoPath, workItemId, taskId) => {
+        set((state) => ({
+          boards: {
+            ...state.boards,
+            [repoPath]: (state.boards[repoPath] ?? []).map((item) =>
+              item.id === workItemId
+                ? { ...item, tasks: item.tasks.filter((t) => t.id !== taskId) }
+                : item,
+            ),
+          },
+        }));
+      },
     }),
     // TODO: Will be migrated to a database in the future, but for now, we can use localStorage to persist the state across page reloads.
     { name: "gitgrove-board" }, // Name of the storage key for persisting the state in localStorage

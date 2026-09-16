@@ -62,9 +62,7 @@ const TaskForm = ({
 
   function handleDelete() {
     if (!task) return;
-    const confirmed = window.confirm(
-      "Delete this task? This can't be undone.",
-    );
+    const confirmed = window.confirm("Delete this task? This can't be undone.");
     if (!confirmed) return;
 
     deleteTask(repoPath, workItemId, task.id);
@@ -110,11 +108,7 @@ const TaskForm = ({
           >
             Save
           </button>
-          <button
-            type="button"
-            className="btn-cancel"
-            onClick={onRequestClose}
-          >
+          <button type="button" className="btn-cancel" onClick={onRequestClose}>
             Cancel
           </button>
           {task && (

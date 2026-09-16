@@ -89,7 +89,7 @@ const WorkItemCardExpanded = ({
 
   return (
     <div
-      className={`shadow-card-elevation-2 flex min-w-[75vw] flex-col gap-2 overflow-auto border-t-8 bg-gray-800 px-6 py-4 ${itemColor.borderTop}`}
+      className={`shadow-card-elevation-2 flex w-[75vw] flex-col gap-4 overflow-auto border-t-8 bg-gray-800 px-6 py-4 ${itemColor.borderTop}`}
     >
       <div className="flex items-center justify-between">
         <span className="font-semibold tracking-widest text-white uppercase">
@@ -162,7 +162,7 @@ const WorkItemCardExpanded = ({
 
       <hr className="h-0.5 w-full bg-white" />
 
-      <section className="flex flex-col gap-2">
+      <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <span className="font-semibold tracking-widest text-white uppercase">
             Tasks
@@ -176,11 +176,12 @@ const WorkItemCardExpanded = ({
           </button>
         </div>
 
-        <section className="flex max-h-64 flex-col gap-4 overflow-auto rounded-xl border border-gray-500 px-2 py-2">
+        <section className="flex max-h-64 flex-col gap-4 overflow-auto rounded-xl border border-gray-500 px-4 py-2">
+          {item.tasks.length === 0 && (
+            <span className="text-gray-400">No tasks for the item</span>
+          )}
           {item.tasks.map((task) => {
-            return (
-              <TaskCard key={task.id} workItemId={item.id} task={task} />
-            );
+            return <TaskCard key={task.id} workItemId={item.id} task={task} />;
           })}
         </section>
       </section>

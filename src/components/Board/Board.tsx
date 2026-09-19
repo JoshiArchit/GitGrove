@@ -15,8 +15,12 @@ const Board = () => {
   };
 
   // TODO: Add a warning modal/callout for displaying errors (decision model approach using enums to resolve messages for a common callout component?)
+  // repoPath falls back to "" (never a real repo path) rather than branching to a
+  // literal [] here — that literal would be a new array every render, and since
+  // useWorkItemBoardStore is a plain store (no shallow-compare selector), that's
+  // seen as a changed snapshot on every render, causing an infinite update loop.
   const items = useWorkItemBoardStore((s) =>
-    selectedRepo ? s.getItems(selectedRepo.path) : [],
+    s.getItems(selectedRepo?.path ?? ""),
   );
   if (!selectedRepo) return null;
 

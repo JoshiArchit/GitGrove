@@ -91,44 +91,44 @@ const WorkItemCardExpanded = ({
     <div
       className={`shadow-card-elevation-2 flex w-[75vw] flex-col gap-4 overflow-auto border-t-8 bg-gray-800 px-6 py-4 ${itemColor.borderTop}`}
     >
-      <div className="flex items-center justify-between">
-        <span className="font-semibold tracking-widest text-white uppercase">
-          {item.type}
-        </span>
-
-        <div className="flex items-center justify-end gap-4 text-white">
-          <button
-            className="btn-primary disabled:btn-disabled"
-            type="submit"
-            disabled={!isDirty}
-          >
-            Save
-          </button>
-          <button type="button" className="btn-cancel" onClick={onRequestClose}>
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handleDelete}
-          >
-            Delete
-          </button>
-          <button
-            type="button"
-            onClick={onRequestClose}
-            className="text-gray-300 transition-all duration-300 hover:cursor-pointer hover:text-white"
-          >
-            <SquareXIcon className="size-8 rounded-lg" />
-          </button>
-        </div>
-      </div>
-
       <form
         onSubmit={handleSubmit}
         onInput={(e) => checkDirty(e.currentTarget)}
         className="flex flex-col gap-4"
       >
+        <div className="flex items-center justify-between">
+          <span className="font-semibold tracking-widest text-white uppercase">
+            {item.type}
+          </span>
+
+          <div className="flex items-center justify-end gap-4 text-white">
+            <button
+              className="btn-primary disabled:btn-disabled"
+              type="submit"
+              disabled={!isDirty}
+            >
+              Save
+            </button>
+            <button type="button" className="btn-cancel" onClick={onRequestClose}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleDelete}
+            >
+              Delete
+            </button>
+            <button
+              type="button"
+              onClick={onRequestClose}
+              className="text-gray-300 transition-all duration-300 hover:cursor-pointer hover:text-white"
+            >
+              <SquareXIcon className="size-8 rounded-lg" />
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-col gap-2">
           <label htmlFor="status" className="text-white">
             Status

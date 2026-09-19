@@ -1,6 +1,6 @@
 import { SquareXIcon } from "lucide-react";
 import React from "react";
-import { useWorkItemBoardStore } from "../../store/workItemBoardStore";
+import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { Task, TaskStatus } from "../../types/board.types";
 

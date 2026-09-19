@@ -1,5 +1,5 @@
 import { Status, WorkItem } from "../../types/board.types";
-import WorkItemCard from "../WorkItems/WorkItemCard";
+import WorkItemCard from "../work-items/WorkItemCard";
 
 type BoardColumnProps = {
   columnStatus: Status;

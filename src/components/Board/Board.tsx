@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
-import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
+import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Status } from "../../types/board.types";
-import BoardColumn from "../Board/BoardColumn";
-import WorkItemForm from "../WorkItems/WorkItemForm";
+import BoardColumn from "../board/BoardColumn";
+import WorkItemForm from "../work-items/WorkItemForm";
 
 const Board = () => {
   const selectedRepo = useSelectedRepoStore((s) => s.repo);

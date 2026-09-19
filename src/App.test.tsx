@@ -8,13 +8,13 @@ import { RepoEntry } from "./types/repo.types";
 vi.mock("./components/ContributionGraph", () => ({
   default: () => <div data-testid="contribution-graph" />,
 }));
-vi.mock("./components/RepoSummary/RepoSummary", () => ({
+vi.mock("./components/repo-summary/RepoSummary", () => ({
   default: () => <div data-testid="repo-summary" />,
 }));
 vi.mock("./components/Sidebar", () => ({
   default: () => <div data-testid="sidebar" />,
 }));
-vi.mock("./components/Board/Board", () => ({
+vi.mock("./components/board/Board", () => ({
   default: () => <div data-testid="board" />,
 }));
 vi.mock("./components/WelcomeScreen", () => ({

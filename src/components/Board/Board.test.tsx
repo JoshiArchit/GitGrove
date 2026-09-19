@@ -1,18 +1,18 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import Board from "./Board";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
-import { RepoEntry } from "../../types/repo.types";
 import { Status, WorkItem, WorkItemtype } from "../../types/board.types";
+import { RepoEntry } from "../../types/repo.types";
+import Board from "./Board";
 
-vi.mock("../WorkItems/WorkItemCard", () => ({
+vi.mock("../work-items/WorkItemCard", () => ({
   default: ({ item }: { item: WorkItem }) => (
     <div data-testid={`work-item-card-${item.id}`}>{item.title}</div>
   ),
 }));
-vi.mock("../WorkItems/WorkItemForm", () => ({
+vi.mock("../work-items/WorkItemForm", () => ({
   default: ({ onClose }: { onClose: () => void }) => (
     <div data-testid="work-item-form">
       <button onClick={onClose}>close-form</button>
@@ -60,11 +60,15 @@ describe("Board", () => {
       .closest("section")!;
     const doneColumn = screen.getByText(Status.Done).closest("section")!;
 
-    expect(within(backlogColumn).getByTestId("work-item-card-b1")).toBeInTheDocument();
+    expect(
+      within(backlogColumn).getByTestId("work-item-card-b1"),
+    ).toBeInTheDocument();
     expect(
       within(inProgressColumn).getByTestId("work-item-card-p1"),
     ).toBeInTheDocument();
-    expect(within(doneColumn).getByTestId("work-item-card-d1")).toBeInTheDocument();
+    expect(
+      within(doneColumn).getByTestId("work-item-card-d1"),
+    ).toBeInTheDocument();
   });
 
   it("only shows items belonging to the currently selected repo", () => {
@@ -76,7 +80,9 @@ describe("Board", () => {
     render(<Board />);
 
     expect(screen.getByTestId("work-item-card-mine")).toBeInTheDocument();
-    expect(screen.queryByTestId("work-item-card-not-mine")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("work-item-card-not-mine"),
+    ).not.toBeInTheDocument();
   });
 
   it("opens the Add Item dialog with the work item form, and closes it", async () => {

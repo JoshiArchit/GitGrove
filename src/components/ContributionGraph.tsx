@@ -120,16 +120,24 @@ const ContributionGraph = () => {
     chartRef.current.setOption(options);
   }, [contributions]);
 
+  // TODO: The calendar has a fixed pixel footprint (cellSize is intentionally
+  // fixed, not "auto" — see the calendar.cellSize comment below), so on wide
+  // windows it's centered with whitespace on either side. Rather than
+  // stretching the calendar itself, fill that space with a stats strip next
+  // to it (current streak, longest streak, total contributions this year,
+  // busiest day) — GitHub's own contribution graph does this.
   return (
     <section
       id="contributions-graph"
       className={`transition- flex w-full min-w-0 flex-col items-center justify-center rounded-lg bg-gray-900 p-4 duration-300 ${loaded ? "opacity-100" : "opacity-0"} ${collapsed ? "gap-0" : "gap-4"}`}
     >
       <button
-        className="flex w-full items-center gap-2 border-0 bg-transparent p-0 text-white"
+        className="flex w-full items-center justify-center gap-2 border-0 bg-transparent p-0 text-white"
         onClick={() => setCollapsed(!collapsed)}
       >
-        <span className="w-fit self-start">Contribution Graph</span>
+        <span className="w-fit self-start text-xl font-medium tracking-widest uppercase">
+          Contribution Graph
+        </span>
         <ChevronDown
           className={`h-4 w-4 transition-transform duration-300 ${collapsed ? "" : "rotate-180"}`}
         />

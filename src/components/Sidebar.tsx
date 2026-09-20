@@ -1,7 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderCode, FolderGit2, PanelRight, Sprout } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useClickOutside } from "../hooks/useClickOutside";
 import { useSelectedRepoStore } from "../stores/selectedRepoStore";
 import { RepoEntry } from "../types/repo.types";
 
@@ -17,6 +18,10 @@ type SidebarProps = {
 const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
   const activeRepo = useSelectedRepoStore((s) => s.repo);
   const [collapsed, setCollapsed] = useState(true);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Only listens while expanded (!collapsed)
+  useClickOutside(sidebarRef, () => setCollapsed(true), !collapsed);
 
   /**
    * Merges two lists of repositories, ensuring that there are no duplicates based on the repository path.
@@ -82,6 +87,7 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
   return (
     <div
       id="sidebar"
+      ref={sidebarRef}
       className={`${collapsed ? "w-sidebar-collapsed" : "w-64 lg:w-[20vw]"} z-10 box-border flex h-full flex-col gap-3 rounded-xl bg-gray-900 p-4 text-white shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-all duration-300`}
     >
       <section

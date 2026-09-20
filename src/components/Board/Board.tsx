@@ -29,7 +29,7 @@ const Board = () => {
   const doneItems = items.filter((i) => i.status === Status.Done);
 
   return (
-    <section className="flex w-full flex-col gap-4 rounded-lg bg-gray-900 p-4 text-white">
+    <section className="flex h-full w-full flex-col gap-4 rounded-lg bg-gray-900 p-4 text-white">
       <section className="flex flex-col items-center justify-between gap-4">
         <h1 className="text-xl tracking-widest uppercase">Tasks</h1>
         <button
@@ -51,13 +51,16 @@ const Board = () => {
         {isFormOpen && <WorkItemForm onClose={closeDialog} />}
       </dialog>
 
-      <section className="flex min-h-32 w-full justify-between gap-2">
-        <BoardColumn columnStatus={Status.Backlog} workItems={backlogItems} />
-        <BoardColumn
-          columnStatus={Status.InProgress}
-          workItems={inProgressItems}
-        />
-        <BoardColumn columnStatus={Status.Done} workItems={doneItems} />
+      <section className="shadow-card-elevation-1 rounded-lg bg-gray-800 p-6">
+        <div className="flex min-h-32 w-full justify-between gap-4">
+          {" "}
+          <BoardColumn columnStatus={Status.Backlog} workItems={backlogItems} />
+          <BoardColumn
+            columnStatus={Status.InProgress}
+            workItems={inProgressItems}
+          />
+          <BoardColumn columnStatus={Status.Done} workItems={doneItems} />
+        </div>
       </section>
     </section>
   );

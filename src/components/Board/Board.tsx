@@ -30,10 +30,10 @@ const Board = () => {
 
   return (
     <section className="flex w-full flex-col gap-4 rounded-lg bg-gray-900 p-4 text-white">
-      <section className="flex items-center justify-between">
-        <h1>Tasks</h1>
+      <section className="flex flex-col items-center justify-between gap-4">
+        <h1 className="text-xl tracking-widest uppercase">Tasks</h1>
         <button
-          className="btn-primary"
+          className="btn-primary self-end"
           onClick={() => {
             setIsFormOpen(true);
             dialogRef.current?.showModal();

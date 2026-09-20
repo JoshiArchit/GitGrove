@@ -37,7 +37,8 @@ describe("RepoSummary — with data", () => {
   it("shows the current branch and stat cards", () => {
     render(<RepoSummary />);
 
-    expect(screen.getByText(/Current Branch : main/)).toBeInTheDocument();
+    expect(screen.getByText("Checked Out")).toBeInTheDocument();
+    expect(screen.getByText("main")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument(); // branches.length
     expect(screen.getByText("42")).toBeInTheDocument(); // total_commits
     expect(screen.getByText("2026-01-01")).toBeInTheDocument();

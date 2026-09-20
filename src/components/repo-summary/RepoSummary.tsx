@@ -5,7 +5,6 @@ import {
   ChevronDown,
   GitBranch,
   GitCommitHorizontal,
-  Info,
   Link,
   Sunrise,
   Sunset,
@@ -27,7 +26,7 @@ const RepoSummary = () => {
     // No fixed width — the container is styled to stretch full-width, so the
     // canvas should measure it instead of being pinned to a literal pixel size.
     chartRef.current = echarts.init(chartDivRef.current, undefined, {
-      height: 120,
+      height: 80,
     });
 
     // init() only measures the container once. Without this, the canvas
@@ -62,6 +61,7 @@ const RepoSummary = () => {
         top: "bottom",
         textStyle: { color: "#ffffff" },
         data: languages.map(([name]) => name),
+        selectedMode: false,
       },
       tooltip: {
         trigger: "item",
@@ -100,7 +100,7 @@ const RepoSummary = () => {
           name,
           type: "bar",
           stack: "distribution",
-          barWidth: "20%",
+          barWidth: "30%",
           data: [value],
           itemStyle: {
             borderRadius: [
@@ -126,10 +126,12 @@ const RepoSummary = () => {
       className={`${collapsed ? "gap-0" : "gap-4"} box-border flex h-fit w-full flex-col rounded-xl bg-gray-900 p-4 text-white transition-[gap] duration-300`}
     >
       <button
-        className="flex w-fit items-center gap-2 border-0 bg-transparent p-0 text-white"
+        className="flex w-full items-center justify-center gap-2 border-0 bg-transparent p-0 text-white"
         onClick={() => setCollapsed(!collapsed)}
       >
-        <span>Repository Summary</span>
+        <span className="text-xl font-medium tracking-widest uppercase">
+          Repository Summary
+        </span>
         <ChevronDown
           className={`h-4 w-4 transition-transform duration-300 ${collapsed ? "" : "rotate-180"}`}
         />
@@ -140,36 +142,31 @@ const RepoSummary = () => {
         transition={{ duration: 0.3 }}
         className="overflow-hidden bg-transparent"
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex w-full flex-col gap-3">
           <section
-            id="languages-chart"
-            className="shadow-card-elevation-1 flex w-full flex-col rounded-xl bg-gray-800 p-4"
+            id="overview"
+            className="flex h-fit w-full min-w-0 items-center justify-center gap-3 border-b-2 border-gray-900"
           >
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-white">Tech Stack</span>
-              <Info className="h-4 w-4 self-start text-gray-500" />
+            <div
+              className="flex w-1/2 flex-col items-center"
+              title={repoSummary?.current_branch}
+            >
+              <span className="font-semibold tracking-widest text-gray-500 uppercase">
+                Checked Out
+              </span>
+              <span>{repoSummary?.current_branch}</span>
             </div>
-            <div className="flex w-full" ref={chartDivRef}></div>
-          </section>
-          <section
-            id="summary-stats"
-            className="shadow-card-elevation-1 flex w-full min-w-0 flex-col rounded-xl bg-gray-800 p-4"
-          >
-            <section className="flex h-fit w-full min-w-0 flex-col flex-wrap items-start justify-center gap-3 border-b-2 border-gray-900 pb-4">
-              <span
-                className="w-full truncate"
-                title={repoSummary?.current_branch}
-              >
-                Current Branch : {repoSummary?.current_branch}
+            <div className="flex w-1/2 flex-col items-center">
+              <span className="font-semibold tracking-widest text-gray-500 uppercase">
+                Remote
               </span>
               {repoSummary?.remote_url ? (
                 <button
-                  className="flex w-full min-w-0 items-start gap-1 border-0 bg-transparent p-0 text-white"
+                  className="bg-tjustify-center flex w-full min-w-0 items-center justify-center gap-1 border-0 text-white"
                   onClick={() => openUrl(repoSummary.remote_url!)}
                   title={repoSummary.remote_url}
                 >
-                  <span className="w-fit shrink-0">Remote : </span>
-                  <span className="min-w-0 truncate hover:cursor-pointer hover:underline">
+                  <span className="min-w-0 truncate text-base hover:cursor-pointer hover:underline">
                     {repoSummary.remote_url}
                   </span>
                   <Link className="h-3 w-3 shrink-0" />
@@ -177,9 +174,25 @@ const RepoSummary = () => {
               ) : (
                 <span>Remote : No remote set</span>
               )}
-            </section>
+            </div>
+          </section>
 
-            <section className="box-border grid w-full grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-4 p-4">
+          <section
+            id="languages-chart"
+            className="flex w-full flex-col rounded-xl"
+          >
+            <div className="flex w-full" ref={chartDivRef}></div>
+          </section>
+
+          <section
+            id="summary-stats"
+            className="flex w-full min-w-0 flex-col rounded-xl"
+          >
+            {/* pt-2/pl-2 buffer the grid's top-left edge: StatCard's icon badge
+            sits at -top-2/-left-2, intentionally overlapping its own card's
+            corner, so without this the first card's badge gets clipped by
+            the motion.div's overflow-hidden above. */}
+            <section className="box-border grid w-full grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-4 pt-2 pl-2">
               <StatCard
                 icon={<GitBranch className="h-4 w-4" />}
                 title="Branches"

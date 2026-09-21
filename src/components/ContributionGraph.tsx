@@ -11,12 +11,6 @@ function buildCalendarData(contributions: Contributions): [string, number][] {
   return Object.entries(contributions.contributions);
 }
 
-/** Shortens an author email for tooltip display, extracting the username from GitHub noreply addresses. */
-function displayName(email: string): string {
-  const match = email.match(/^\d+\+(.+)@users\.noreply\.github\.com$/);
-  return match ? match[1] : email.split("@")[0];
-}
-
 const ContributionGraph = () => {
   const selectedRepo = useSelectedRepoStore((s) => s.repo);
   const chartDivRef = useRef<HTMLDivElement>(null);

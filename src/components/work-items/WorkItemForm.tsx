@@ -1,3 +1,4 @@
+import { SquareXIcon } from "lucide-react";
 import React from "react";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
@@ -49,7 +50,13 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
       onSubmit={handleSubmit}
       className="flex max-h-[70vh] min-w-[70vw] flex-col gap-4"
     >
-      <h1 className="text-2xl font-medium">Add New Task</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-medium">Add New Item</h1>
+        <button type="button" onClick={onClose} aria-label="Close">
+          <SquareXIcon className="size-8 hover:cursor-pointer" />
+        </button>
+      </div>
+
       <div className="flex flex-col gap-2">
         <input
           type="text"

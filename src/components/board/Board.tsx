@@ -24,7 +24,7 @@ const Board = () => {
   );
   if (!selectedRepo) return null;
 
-  const backlogItems = items.filter((i) => i.status === Status.Backlog);
+  const newItems = items.filter((i) => i.status === Status.New);
   const inProgressItems = items.filter((i) => i.status === Status.InProgress);
   const doneItems = items.filter((i) => i.status === Status.Done);
 
@@ -54,7 +54,7 @@ const Board = () => {
       <section className="shadow-card-elevation-1 rounded-lg bg-gray-800 p-6">
         <div className="flex min-h-32 w-full justify-between gap-4">
           {" "}
-          <BoardColumn columnStatus={Status.Backlog} workItems={backlogItems} />
+          <BoardColumn columnStatus={Status.New} workItems={newItems} />
           <BoardColumn
             columnStatus={Status.InProgress}
             workItems={inProgressItems}

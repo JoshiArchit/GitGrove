@@ -31,7 +31,7 @@ const makeItem = (overrides: Partial<WorkItem> = {}): WorkItem => ({
   type: WorkItemtype.Story,
   title: "Add store tests",
   description: "",
-  status: Status.Backlog,
+  status: Status.New,
   tasks: [],
   ...overrides,
 });
@@ -152,8 +152,14 @@ describe("useWorkItemBoardStore", () => {
     // Each action gets its own never-touched repoPath — reusing one would let an
     // earlier action's `?? []` fallback create the `boards[repoPath] = []` entry,
     // masking the fallback branch for every action that runs after it.
-    const { updateItem, deleteItem, addTask, updateTask, deleteTask, getItems } =
-      useWorkItemBoardStore.getState();
+    const {
+      updateItem,
+      deleteItem,
+      addTask,
+      updateTask,
+      deleteTask,
+      getItems,
+    } = useWorkItemBoardStore.getState();
 
     expect(() => {
       updateItem("/repos/never-added-1", "missing", { title: "x" });

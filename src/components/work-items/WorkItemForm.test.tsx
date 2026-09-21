@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import WorkItemForm from "./WorkItemForm";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
-import { RepoEntry, RepoSummaryData } from "../../types/repo.types";
 import { Status, WorkItemtype } from "../../types/board.types";
+import { RepoEntry, RepoSummaryData } from "../../types/repo.types";
+import WorkItemForm from "./WorkItemForm";
 
 const initialSelectedRepoState = useSelectedRepoStore.getState();
 const REPO: RepoEntry = { path: "/repos/git-grove", name: "git-grove" };
@@ -23,9 +23,7 @@ describe("WorkItemForm", () => {
   it("lists the repo's branches and work item types as select options", () => {
     render(<WorkItemForm onClose={vi.fn()} />);
 
-    expect(
-      screen.getByRole("option", { name: "main" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "main" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "dev" })).toBeInTheDocument();
     expect(
       screen.getByRole("option", { name: WorkItemtype.Story }),
@@ -35,7 +33,7 @@ describe("WorkItemForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("adds a new Backlog work item to the selected repo on submit, and closes", async () => {
+  it("adds a new New work item to the selected repo on submit, and closes", async () => {
     const onClose = vi.fn();
     render(<WorkItemForm onClose={onClose} />);
 
@@ -47,7 +45,10 @@ describe("WorkItemForm", () => {
       screen.getByPlaceholderText("Add description"),
       "OAuth-based login",
     );
-    await userEvent.selectOptions(screen.getByLabelText("Select a branch"), "dev");
+    await userEvent.selectOptions(
+      screen.getByLabelText("Select a branch"),
+      "dev",
+    );
     await userEvent.selectOptions(
       screen.getByLabelText("Select work item type"),
       WorkItemtype.Bug,
@@ -61,7 +62,7 @@ describe("WorkItemForm", () => {
       description: "OAuth-based login",
       branch: "dev",
       type: WorkItemtype.Bug,
-      status: Status.Backlog,
+      status: Status.New,
       tasks: [],
     });
     expect(onClose).toHaveBeenCalled();

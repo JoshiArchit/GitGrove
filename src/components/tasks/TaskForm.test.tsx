@@ -1,10 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import TaskForm from "./TaskForm";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
-import { RepoEntry } from "../../types/repo.types";
 import {
   Status,
   Task,
@@ -12,6 +10,8 @@ import {
   WorkItem,
   WorkItemtype,
 } from "../../types/board.types";
+import { RepoEntry } from "../../types/repo.types";
+import TaskForm from "./TaskForm";
 
 const initialSelectedRepoState = useSelectedRepoStore.getState();
 const REPO: RepoEntry = { path: "/repos/git-grove", name: "git-grove" };
@@ -30,7 +30,7 @@ function seedWorkItem(tasks: Task[] = []) {
     type: WorkItemtype.Story,
     title: "Ship v1",
     description: "",
-    status: Status.Backlog,
+    status: Status.New,
     tasks,
   };
   useWorkItemBoardStore.getState().addItem(REPO.path, item);
@@ -144,9 +144,7 @@ describe("TaskForm — edit mode", () => {
       />,
     );
 
-    expect(
-      screen.getByDisplayValue("Write the changelog"),
-    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Write the changelog")).toBeInTheDocument();
     expect(
       screen.getByDisplayValue("Summarize this release"),
     ).toBeInTheDocument();

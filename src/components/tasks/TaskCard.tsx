@@ -37,7 +37,7 @@ const TaskCard = ({ workItemId, task }: TaskCardProps) => {
   return (
     <>
       <div
-        className="w-full truncate rounded-lg border-2 border-l-6 border-gray-400 border-l-amber-400 px-2 py-1 text-wrap text-white hover:cursor-pointer hover:border-black hover:bg-amber-100 hover:text-black"
+        className="w-full truncate rounded-lg border-2 border-l-6 border-gray-400 border-l-amber-400 px-2 py-1 text-wrap text-white hover:cursor-pointer hover:border-black hover:bg-amber-300 hover:text-black"
         onClick={openDialog}
       >
         {task.title}

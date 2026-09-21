@@ -1,6 +1,6 @@
 import React from "react";
-import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
+import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Status, WorkItem, WorkItemtype } from "../../types/board.types";
 
 type WorkItemFormProps = {
@@ -32,7 +32,7 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
       title: data.title,
       description: data.description,
       branch: data.branch,
-      status: Status.Backlog,
+      status: Status.New,
       tasks: [],
     };
 

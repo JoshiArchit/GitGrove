@@ -39,7 +39,7 @@ const WorkItemCard = ({ item }: WorkItemCardProps) => {
   return (
     <>
       <div
-        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-400 ${itemColor.borderLeft}`}
+        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-700 ${itemColor.borderLeft} transition-colors duration-150`}
         onClick={openDialog}
       >
         <span>{item.title}</span>

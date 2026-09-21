@@ -98,4 +98,22 @@ describe("Board", () => {
     await userEvent.click(screen.getByRole("button", { name: "close-form" }));
     expect(screen.queryByTestId("work-item-form")).not.toBeInTheDocument();
   });
+
+  it("shows the board view by default", async () => {
+    useSelectedRepoStore.setState({ repo: REPO });
+    render(<Board />);
+
+    expect(document.querySelector("#board-view")).toBeInTheDocument();
+    expect(document.querySelector("#backlog-view")).not.toBeInTheDocument();
+  });
+
+  it("switches to the backlog view when toggled", async () => {
+    useSelectedRepoStore.setState({ repo: REPO });
+    render(<Board />);
+
+    await userEvent.click(screen.getByRole("button", { name: /backlog/i }));
+
+    expect(document.querySelector("#board-view")).not.toBeInTheDocument();
+    expect(document.querySelector("#backlog-view")).toBeInTheDocument();
+  });
 });

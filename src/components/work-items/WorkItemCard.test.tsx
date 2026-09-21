@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import WorkItemCard from "./WorkItemCard";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Status, WorkItem, WorkItemtype } from "../../types/board.types";
+import WorkItemCard from "./WorkItemCard";
 
 let capturedOnDirtyChange: ((dirty: boolean) => void) | null = null;
 let capturedOnRequestClose: (() => void) | null = null;
@@ -26,7 +26,7 @@ const item: WorkItem = {
   type: WorkItemtype.Story,
   title: "Add login flow",
   description: "",
-  status: Status.Backlog,
+  status: Status.New,
   tasks: [],
 };
 

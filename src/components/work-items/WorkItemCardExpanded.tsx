@@ -4,8 +4,8 @@ import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { Status, WorkItem } from "../../types/board.types";
-import TaskCard from "../Tasks/TaskCard";
-import TaskForm from "../Tasks/TaskForm";
+import TaskCard from "../tasks/TaskCard";
+import TaskForm from "../tasks/TaskForm";
 
 type WorkItemCardExpandedProps = {
   item: WorkItem;

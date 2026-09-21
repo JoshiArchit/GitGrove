@@ -7,12 +7,12 @@ import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { RepoEntry } from "../../types/repo.types";
 import { Status, Task, TaskStatus, WorkItem, WorkItemtype } from "../../types/board.types";
 
-vi.mock("../Tasks/TaskCard", () => ({
+vi.mock("../tasks/TaskCard", () => ({
   default: ({ task }: { task: Task }) => (
     <div data-testid={`task-card-${task.id}`}>{task.title}</div>
   ),
 }));
-vi.mock("../Tasks/TaskForm", () => ({
+vi.mock("../tasks/TaskForm", () => ({
   default: () => <div data-testid="task-form" />,
 }));
 

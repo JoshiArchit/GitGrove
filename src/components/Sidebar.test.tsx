@@ -47,6 +47,34 @@ describe("Sidebar — collapsed by default", () => {
   });
 });
 
+describe("Sidebar — click outside", () => {
+  it("collapses when a click lands outside the sidebar", async () => {
+    render(
+      <div>
+        <Sidebar repoList={REPOS} updateRepoListAndRoot={vi.fn()} />
+        <div data-testid="outside">elsewhere on the page</div>
+      </div>,
+    );
+    await userEvent.click(screen.getByTitle("Expand Menu"));
+    expect(screen.getByRole("list")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId("outside"));
+
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+  });
+
+  it("does not collapse when the click is inside the sidebar", async () => {
+    render(
+      <Sidebar repoList={REPOS} updateRepoListAndRoot={vi.fn()} />,
+    );
+    await userEvent.click(screen.getByTitle("Expand Menu"));
+
+    await userEvent.click(screen.getByText("GitGrove"));
+
+    expect(screen.getByRole("list")).toBeInTheDocument();
+  });
+});
+
 describe("Sidebar — repo selection", () => {
   it("highlights the currently active repo", async () => {
     useSelectedRepoStore.setState({ repo: REPOS[0] });

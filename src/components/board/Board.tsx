@@ -4,6 +4,7 @@ import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Status } from "../../types/board.types";
 import BoardColumn from "../board/BoardColumn";
 import WorkItemForm from "../work-items/WorkItemForm";
+import WorkItemsTable from "../work-items/WorkItemsTable";
 
 const Board = () => {
   const selectedRepo = useSelectedRepoStore((s) => s.repo);
@@ -13,6 +14,7 @@ const Board = () => {
     dialogRef.current?.close();
     setIsFormOpen(false);
   };
+  const [backlogView, setBacklogView] = useState<boolean>(false);
 
   // TODO: Add a warning modal/callout for displaying errors (decision model approach using enums to resolve messages for a common callout component?)
   // repoPath falls back to "" (never a real repo path) rather than branching to a
@@ -43,25 +45,64 @@ const Board = () => {
         </button>
       </section>
 
+      <div className="flex flex-col transition-all duration-300">
+        <div className="flex w-fit">
+          <button
+            type="button"
+            id="board-tab"
+            className={`min-w-32 rounded-t-lg px-4 py-2 text-xl tracking-tight uppercase ${!backlogView ? "shadow-card-elevation-1 bg-gray-800" : "bg-gray-800/40"}`}
+            onClick={() => setBacklogView(false)}
+          >
+            Board
+          </button>
+          <button
+            type="button"
+            id="backlog-tab"
+            className={`min-w-32 rounded-t-lg border-transparent px-4 py-2 text-xl tracking-tight uppercase ${backlogView ? "shadow-card-elevation-1 bg-gray-800" : "bg-gray-800/40"}`}
+            onClick={() => setBacklogView(true)}
+          >
+            Backlog
+          </button>
+        </div>
+        <section className="rounded-b-lg bg-gray-800 p-6">
+          {!backlogView && (
+            <div
+              id="board-view"
+              className="flex min-h-32 w-full justify-between gap-4"
+            >
+              <BoardColumn columnStatus={Status.New} workItems={newItems} />
+              <BoardColumn
+                columnStatus={Status.InProgress}
+                workItems={inProgressItems}
+              />
+              <BoardColumn columnStatus={Status.Done} workItems={doneItems} />
+            </div>
+          )}
+
+          {backlogView && (
+            <div
+              id="backlog-view"
+              className="shadow-card-elevation-2 flex flex-col rounded-lg"
+            >
+              {items.length ? (
+                <WorkItemsTable />
+              ) : (
+                <span className="flex w-full justify-center rounded-lg bg-black p-4 text-sm text-gray-600">
+                  No items
+                </span>
+              )}
+            </div>
+          )}
+        </section>
+      </div>
+
       <dialog
         ref={dialogRef}
         onCancel={closeDialog}
-        className="m-auto rounded-lg bg-gray-900 p-6 text-white backdrop:backdrop:bg-gray-900/60"
+        className="m-auto rounded-lg bg-gray-900 p-6 text-white backdrop:bg-black/80"
       >
         {isFormOpen && <WorkItemForm onClose={closeDialog} />}
       </dialog>
-
-      <section className="shadow-card-elevation-1 rounded-lg bg-gray-800 p-6">
-        <div className="flex min-h-32 w-full justify-between gap-4">
-          {" "}
-          <BoardColumn columnStatus={Status.New} workItems={newItems} />
-          <BoardColumn
-            columnStatus={Status.InProgress}
-            workItems={inProgressItems}
-          />
-          <BoardColumn columnStatus={Status.Done} workItems={doneItems} />
-        </div>
-      </section>
     </section>
   );
 };

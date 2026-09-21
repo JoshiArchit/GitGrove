@@ -81,4 +81,18 @@ describe("WorkItemForm", () => {
     expect(useWorkItemBoardStore.getState().getItems(REPO.path)).toEqual([]);
     expect(onClose).toHaveBeenCalled();
   });
+
+  it("closes without adding an item when Close icon is clicked", async () => {
+    const onClose = vi.fn();
+    render(<WorkItemForm onClose={onClose} />);
+
+    await userEvent.type(
+      screen.getByPlaceholderText("Enter title for the task"),
+      "Should not be saved",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Close" }));
+
+    expect(useWorkItemBoardStore.getState().getItems(REPO.path)).toEqual([]);
+    expect(onClose).toHaveBeenCalled();
+  });
 });

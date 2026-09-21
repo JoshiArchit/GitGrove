@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from "motion/react";
 import "./App.css";
+import Board from "./components/board/Board";
 import ContributionGraph from "./components/ContributionGraph";
-import RepoSummaryData from "./components/RepoSummary/RepoSummary";
+import RepoSummaryData from "./components/repo-summary/RepoSummary";
 import Sidebar from "./components/Sidebar";
-import Board from "./components/Board/Board";
 import WelcomeScreen from "./components/WelcomeScreen";
 import { usePersistedRepoList } from "./hooks/usePersistedRepoList";
 import { useSelectedRepoStore } from "./stores/selectedRepoStore";

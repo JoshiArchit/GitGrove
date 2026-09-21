@@ -1,5 +1,5 @@
 import { Status, WorkItem } from "../../types/board.types";
-import WorkItemCard from "../WorkItems/WorkItemCard";
+import WorkItemCard from "../work-items/WorkItemCard";
 
 type BoardColumnProps = {
   columnStatus: Status;
@@ -8,7 +8,7 @@ type BoardColumnProps = {
 
 const BoardColumn = ({ columnStatus, workItems }: BoardColumnProps) => {
   return (
-    <section className="flex w-1/3 flex-col items-center justify-start gap-4 rounded-lg bg-black px-2 py-4">
+    <section className="shadow-card-elevation-2 flex w-1/3 flex-col items-center justify-start gap-4 rounded-lg bg-black px-2 py-4">
       <span className="text-sm">{columnStatus}</span>
 
       <section className="flex w-full flex-col gap-2">

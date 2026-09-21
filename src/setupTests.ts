@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { afterEach } from "vitest";
+import { afterEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 
 afterEach(cleanup);
@@ -14,3 +14,13 @@ HTMLDialogElement.prototype.close = function (this: HTMLDialogElement) {
   this.removeAttribute("open");
   this.dispatchEvent(new Event("close"));
 };
+
+// jsdom doesn't implement ResizeObserver either (RepoSummary uses one to keep
+// its echarts canvas sized to its container). Tests don't need it to actually
+// observe anything, just to not throw on construction.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+vi.stubGlobal("ResizeObserver", ResizeObserverStub);

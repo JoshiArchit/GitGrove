@@ -14,7 +14,7 @@ const makeItem = (overrides: Partial<WorkItem> = {}): WorkItem => ({
   type: WorkItemtype.Story,
   title: "Item title",
   description: "",
-  status: Status.Backlog,
+  status: Status.New,
   tasks: [],
   ...overrides,
 });
@@ -32,7 +32,7 @@ describe("BoardColumn", () => {
       makeItem({ id: "a2", title: "Second" }),
     ];
 
-    render(<BoardColumn columnStatus={Status.Backlog} workItems={items} />);
+    render(<BoardColumn columnStatus={Status.New} workItems={items} />);
 
     expect(screen.getByTestId("work-item-card-a1")).toHaveTextContent("First");
     expect(screen.getByTestId("work-item-card-a2")).toHaveTextContent("Second");

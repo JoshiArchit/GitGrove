@@ -1,8 +1,8 @@
 import { SquareXIcon } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
-import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
+import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Status, WorkItem } from "../../types/board.types";
 import TaskCard from "../tasks/TaskCard";
 import TaskForm from "../tasks/TaskForm";
@@ -89,7 +89,7 @@ const WorkItemCardExpanded = ({
 
   return (
     <div
-      className={`shadow-card-elevation-2 flex w-[75vw] flex-col gap-4 overflow-auto border-t-8 bg-gray-800 px-6 py-4 ${itemColor.borderTop}`}
+      className={`shadow-card-elevation-2 flex w-[75vw] flex-col gap-4 overflow-auto border-t-8 bg-gray-900 px-6 py-4 ${itemColor.borderTop}`}
     >
       <form
         onSubmit={handleSubmit}
@@ -109,7 +109,11 @@ const WorkItemCardExpanded = ({
             >
               Save
             </button>
-            <button type="button" className="btn-cancel" onClick={onRequestClose}>
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={onRequestClose}
+            >
               Cancel
             </button>
             <button

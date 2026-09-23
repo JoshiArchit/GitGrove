@@ -5,9 +5,10 @@ import WorkItemCardExpanded from "./WorkItemCardExpanded";
 
 type WorkItemCardProps = {
   item: WorkItem;
+  index: number;
 };
 
-const WorkItemCard = ({ item }: WorkItemCardProps) => {
+const WorkItemCard = ({ item, index }: WorkItemCardProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [instanceKey, setInstanceKey] = useState(0);
@@ -39,16 +40,21 @@ const WorkItemCard = ({ item }: WorkItemCardProps) => {
   return (
     <>
       <div
-        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-400 ${itemColor.borderLeft}`}
+        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-700 ${itemColor.borderLeft} transition-colors duration-150`}
         onClick={openDialog}
       >
-        <span>{item.title}</span>
+        <div className="flex w-full flex-col">
+          <span className="text-xs text-gray-600 uppercase">
+          #{index + 1} {item.type}
+          </span>
+          <span>{item.title}</span>
+        </div>
       </div>
 
       <dialog
         ref={dialogRef}
         onCancel={handleAttemptClose}
-        className="m-auto rounded-xl backdrop:bg-gray-900/60"
+        className="m-auto rounded-xl backdrop:bg-black/80"
       >
         <WorkItemCardExpanded
           key={instanceKey}

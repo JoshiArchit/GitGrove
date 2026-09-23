@@ -1,11 +1,17 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import WorkItemCardExpanded from "./WorkItemCardExpanded";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
+import {
+  Status,
+  Task,
+  TaskStatus,
+  WorkItem,
+  WorkItemtype,
+} from "../../types/board.types";
 import { RepoEntry } from "../../types/repo.types";
-import { Status, Task, TaskStatus, WorkItem, WorkItemtype } from "../../types/board.types";
+import WorkItemCardExpanded from "./WorkItemCardExpanded";
 
 vi.mock("../tasks/TaskCard", () => ({
   default: ({ task }: { task: Task }) => (
@@ -24,7 +30,7 @@ const item: WorkItem = {
   type: WorkItemtype.Story,
   title: "Ship v1",
   description: "Initial release",
-  status: Status.Backlog,
+  status: Status.New,
   tasks: [],
 };
 
@@ -85,9 +91,7 @@ describe("WorkItemCardExpanded — rendering", () => {
       />,
     );
 
-    expect(screen.getByTestId("task-card-t1")).toHaveTextContent(
-      "Write tests",
-    );
+    expect(screen.getByTestId("task-card-t1")).toHaveTextContent("Write tests");
     expect(screen.queryByText("No tasks for the item")).not.toBeInTheDocument();
   });
 
@@ -176,9 +180,9 @@ describe("WorkItemCardExpanded — delete", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Delete" }));
 
-    expect(
-      useWorkItemBoardStore.getState().getItems(REPO.path),
-    ).toHaveLength(0);
+    expect(useWorkItemBoardStore.getState().getItems(REPO.path)).toHaveLength(
+      0,
+    );
     expect(onSaved).toHaveBeenCalled();
     vi.restoreAllMocks();
   });
@@ -198,9 +202,9 @@ describe("WorkItemCardExpanded — delete", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Delete" }));
 
-    expect(
-      useWorkItemBoardStore.getState().getItems(REPO.path),
-    ).toHaveLength(1);
+    expect(useWorkItemBoardStore.getState().getItems(REPO.path)).toHaveLength(
+      1,
+    );
     expect(onSaved).not.toHaveBeenCalled();
     vi.restoreAllMocks();
   });

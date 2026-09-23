@@ -28,7 +28,7 @@ const makeItem = (overrides: Partial<WorkItem> = {}): WorkItem => ({
   type: WorkItemtype.Story,
   title: "Item title",
   description: "",
-  status: Status.Backlog,
+  status: Status.New,
   tasks: [],
   ...overrides,
 });
@@ -48,20 +48,20 @@ describe("Board", () => {
   it("groups the selected repo's work items into the matching status column", () => {
     useSelectedRepoStore.setState({ repo: REPO });
     const { addItem } = useWorkItemBoardStore.getState();
-    addItem(REPO.path, makeItem({ id: "b1", status: Status.Backlog }));
+    addItem(REPO.path, makeItem({ id: "b1", status: Status.New }));
     addItem(REPO.path, makeItem({ id: "p1", status: Status.InProgress }));
     addItem(REPO.path, makeItem({ id: "d1", status: Status.Done }));
 
     render(<Board />);
 
-    const backlogColumn = screen.getByText(Status.Backlog).closest("section")!;
+    const newColumn = screen.getByText(Status.New).closest("section")!;
     const inProgressColumn = screen
       .getByText(Status.InProgress)
       .closest("section")!;
     const doneColumn = screen.getByText(Status.Done).closest("section")!;
 
     expect(
-      within(backlogColumn).getByTestId("work-item-card-b1"),
+      within(newColumn).getByTestId("work-item-card-b1"),
     ).toBeInTheDocument();
     expect(
       within(inProgressColumn).getByTestId("work-item-card-p1"),
@@ -97,5 +97,23 @@ describe("Board", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "close-form" }));
     expect(screen.queryByTestId("work-item-form")).not.toBeInTheDocument();
+  });
+
+  it("shows the board view by default", async () => {
+    useSelectedRepoStore.setState({ repo: REPO });
+    render(<Board />);
+
+    expect(document.querySelector("#board-view")).toBeInTheDocument();
+    expect(document.querySelector("#backlog-view")).not.toBeInTheDocument();
+  });
+
+  it("switches to the backlog view when toggled", async () => {
+    useSelectedRepoStore.setState({ repo: REPO });
+    render(<Board />);
+
+    await userEvent.click(screen.getByRole("button", { name: /backlog/i }));
+
+    expect(document.querySelector("#board-view")).not.toBeInTheDocument();
+    expect(document.querySelector("#backlog-view")).toBeInTheDocument();
   });
 });

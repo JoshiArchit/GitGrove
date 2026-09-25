@@ -1,7 +1,9 @@
 import { SquareXIcon } from "lucide-react";
-import React from "react";
-import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
+import React, { useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
+import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Task, TaskStatus } from "../../types/board.types";
 
 type TaskFormProps = {
@@ -26,11 +28,16 @@ const TaskForm = ({
   const updateTask = useWorkItemBoardStore((s) => s.updateTask);
   const deleteTask = useWorkItemBoardStore((s) => s.deleteTask);
 
+  const [description, setDescription] = useState<string>(
+    task?.description ?? "",
+  );
+  const [isPreview, setIsPreview] = useState<Boolean>(false);
+
   function checkDirty(form: HTMLFormElement) {
     const data = Object.fromEntries(new FormData(form));
     const changed =
       data.title !== (task?.title ?? "") ||
-      data.description !== (task?.description ?? "");
+      description !== (task?.description ?? "");
     onDirtyChange(changed);
   }
 
@@ -39,19 +46,18 @@ const TaskForm = ({
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData) as unknown as {
       title: string;
-      description: string;
     };
 
     if (task) {
       updateTask(repoPath, workItemId, task.id, {
         title: data.title,
-        description: data.description,
+        description: description,
       });
     } else {
       addTask(repoPath, workItemId, {
         id: crypto.randomUUID(),
         title: data.title,
-        description: data.description,
+        description: description,
         status: TaskStatus.New,
       });
     }
@@ -93,12 +99,30 @@ const TaskForm = ({
           className="input-element"
         />
 
-        <textarea
-          name="description"
-          defaultValue={task?.description}
-          placeholder="Enter description for the Task"
-          className="input-element min-h-3/4"
-        ></textarea>
+        <div className="flex flex-col items-start justify-center gap-1">
+          {isPreview ? (
+            <div className="input-element prose prose-invert min-h-3/4 bg-gray-900">
+              <Markdown remarkPlugins={[remarkGfm]}>
+                {description || "*Nothing to preview yet*"}
+              </Markdown>
+            </div>
+          ) : (
+            <textarea
+              name="description"
+              placeholder="Add description"
+              className="input-element min-h-3/4"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            ></textarea>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsPreview(!isPreview)}
+            className="px-2 text-sm tracking-tight underline underline-offset-2 transition-all duration-300 hover:scale-110 hover:cursor-pointer"
+          >
+            {isPreview ? "Show Editor" : "Supports Markdown"}{" "}
+          </button>
+        </div>
 
         <div className="flex items-center justify-end gap-4">
           <button

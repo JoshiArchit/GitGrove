@@ -1,5 +1,7 @@
 import { SquareXIcon } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Status, WorkItem, WorkItemtype } from "../../types/board.types";
@@ -19,6 +21,8 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
   const branches = useSelectedRepoStore((s) => s.summary?.branches);
   const repoPath = useSelectedRepoStore((s) => s.repo!.path);
   const addItem = useWorkItemBoardStore((s) => s.addItem);
+  const [description, setDescription] = useState<string>("");
+  const [isPreview, setIsPreview] = useState<Boolean>(false);
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,7 +35,7 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
       id: crypto.randomUUID(),
       type: data.type,
       title: data.title,
-      description: data.description,
+      description: description, // Use the state since when in preview, FormData cannot fetch description
       branch: data.branch,
       status: Status.New,
       tasks: [],
@@ -66,11 +70,30 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
           className="input-element"
         />
 
-        <textarea
-          name="description"
-          placeholder="Add description"
-          className="input-element max-h-3/4"
-        ></textarea>
+        <div className="flex flex-col items-start justify-center gap-1">
+          {isPreview ? (
+            <div className="input-element prose prose-invert min-h-3/4">
+              <Markdown remarkPlugins={[remarkGfm]}>
+                {description || "*Nothing to preview yet*"}
+              </Markdown>
+            </div>
+          ) : (
+            <textarea
+              name="description"
+              placeholder="Add description"
+              className="input-element max-h-3/4"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            ></textarea>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsPreview(!isPreview)}
+            className="px-2 text-sm tracking-tight underline underline-offset-2 transition-all duration-300 hover:scale-125 hover:cursor-pointer"
+          >
+            {isPreview ? "Show Editor" : "Supports Markdown"}{" "}
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-4">

@@ -47,7 +47,7 @@ const TaskCard = ({ workItemId, task }: TaskCardProps) => {
       <dialog
         ref={dialogRef}
         onCancel={handleAttemptClose}
-        className="m-auto rounded-xl backdrop:bg-gray-900/60"
+        className="m-auto rounded-xl bg-transparent backdrop:bg-gray-900/60"
       >
         <TaskForm
           key={instanceKey}

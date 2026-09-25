@@ -26,6 +26,7 @@ const WorkItemCardExpanded = ({
   onSaved,
 }: WorkItemCardExpandedProps) => {
   const repoPath = useSelectedRepoStore((s) => s.repo!.path);
+  const branches = useSelectedRepoStore((s) => s.summary?.branches);
   const updateItem = useWorkItemBoardStore((s) => s.updateItem);
   const deleteItem = useWorkItemBoardStore((s) => s.deleteItem);
   const projects = useProjectsStore((s) => s.projects);
@@ -254,7 +255,7 @@ const WorkItemCardExpanded = ({
       </section>
 
       <dialog
-        className="m-auto rounded-xl backdrop:bg-gray-900/60"
+        className="m-auto rounded-xl bg-transparent backdrop:bg-gray-900/60"
         ref={dialogRef}
         onCancel={handleAttemptCloseTaskForm}
       >

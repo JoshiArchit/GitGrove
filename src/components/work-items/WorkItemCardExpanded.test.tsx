@@ -45,6 +45,7 @@ const item: WorkItem = {
   title: "Ship v1",
   description: "Initial release",
   status: Status.New,
+  branch: "main",
   tasks: [],
 };
 
@@ -82,6 +83,7 @@ describe("WorkItemCardExpanded — rendering", () => {
     expect(screen.getByDisplayValue("Ship v1")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Initial release")).toBeInTheDocument();
     expect(screen.getByText("No tasks for the item")).toBeInTheDocument();
+    expect(screen.getByLabelText("Branch")).toHaveValue("main");
   });
 
   it("renders a TaskCard per task instead of the empty message", () => {
@@ -146,6 +148,25 @@ describe("WorkItemCardExpanded — dirty detection", () => {
     fireInput(titleInput, "Ship v1");
     expect(onDirtyChange).toHaveBeenLastCalledWith(false);
   });
+
+  it("reports dirty once the branch diverges, and clean once reverted", async () => {
+    const onDirtyChange = vi.fn();
+    render(
+      <WorkItemCardExpanded
+        item={item}
+        isDirty={false}
+        onDirtyChange={onDirtyChange}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText("Branch"), "dev");
+    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
+
+    await userEvent.selectOptions(screen.getByLabelText("Branch"), "main");
+    expect(onDirtyChange).toHaveBeenLastCalledWith(false);
+  });
 });
 
 describe("WorkItemCardExpanded — save", () => {
@@ -178,6 +199,27 @@ describe("WorkItemCardExpanded — save", () => {
       description: item.description,
       status: Status.InProgress,
     });
+  });
+
+  it("updates the item's branch on submit", async () => {
+    render(
+      <WorkItemCardExpanded
+        item={item}
+        isDirty={true}
+        onDirtyChange={vi.fn()}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText("Branch"), "dev");
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const updated = useWorkItemBoardStore
+      .getState()
+      .getItems(REPO.path)
+      .find((i) => i.id === item.id);
+    expect(updated).toMatchObject({ branch: "dev" });
   });
 
   it("toggles between the description textarea and its markdown preview", async () => {

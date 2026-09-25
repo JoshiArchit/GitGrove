@@ -117,7 +117,14 @@ const RepoSummary = () => {
       }),
     };
 
-    chartRef.current.setOption(options);
+    // notMerge: true — without it, setOption merges into the *previous*
+    // repo's chart state rather than replacing it. Since the number and
+    // identity of language series differs per repo, a merge can retain
+    // stale series (wrong stacking order vs. the freshly-built legend,
+    // leftover segments from a repo with more languages than the current
+    // one) instead of fully replacing them, which is what caused the bar
+    // to visually reorder and overflow past its container on repo switch.
+    chartRef.current.setOption(options, true);
   }, [repoSummary]);
 
   return (

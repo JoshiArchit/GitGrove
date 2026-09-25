@@ -159,8 +159,34 @@ describe("WorkItemCardExpanded — save", () => {
       .find((i) => i.id === item.id);
     expect(updated).toMatchObject({
       title: "Ship v1.1",
+      description: item.description,
       status: Status.InProgress,
     });
+  });
+
+  it("toggles between the description textarea and its markdown preview", async () => {
+    render(
+      <WorkItemCardExpanded
+        item={item}
+        isDirty={false}
+        onDirtyChange={vi.fn()}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Supports Markdown" }),
+    );
+
+    expect(
+      screen.queryByDisplayValue(item.description),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(item.description)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Show Editor" }));
+
+    expect(screen.getByDisplayValue(item.description)).toBeInTheDocument();
   });
 });
 

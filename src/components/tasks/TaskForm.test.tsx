@@ -176,7 +176,36 @@ describe("TaskForm — edit mode", () => {
     expect(item?.tasks[0]).toMatchObject({
       id: existingTask.id,
       title: "Write release notes",
+      description: existingTask.description,
     });
+  });
+
+  it("toggles between the description textarea and its markdown preview", async () => {
+    render(
+      <TaskForm
+        workItemId={WORK_ITEM_ID}
+        task={existingTask}
+        isDirty={false}
+        onDirtyChange={vi.fn()}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Supports Markdown" }),
+    );
+
+    expect(
+      screen.queryByDisplayValue(existingTask.description),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(existingTask.description)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Show Editor" }));
+
+    expect(
+      screen.getByDisplayValue(existingTask.description),
+    ).toBeInTheDocument();
   });
 
   it("deletes the task after the user confirms, and calls onSaved", async () => {

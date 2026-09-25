@@ -68,6 +68,48 @@ describe("WorkItemForm", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it("toggles between the description textarea and its markdown preview", async () => {
+    render(<WorkItemForm onClose={vi.fn()} />);
+
+    const descriptionInput = screen.getByPlaceholderText("Add description");
+    await userEvent.type(descriptionInput, "**bold** text");
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Supports Markdown" }),
+    );
+
+    expect(
+      screen.queryByPlaceholderText("Add description"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("bold").tagName).toBe("STRONG");
+
+    await userEvent.click(screen.getByRole("button", { name: "Show Editor" }));
+
+    expect(screen.getByPlaceholderText("Add description")).toHaveValue(
+      "**bold** text",
+    );
+  });
+
+  it("saves the description typed while in preview mode", async () => {
+    render(<WorkItemForm onClose={vi.fn()} />);
+
+    await userEvent.type(
+      screen.getByPlaceholderText("Enter title for the task"),
+      "Add login flow",
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText("Add description"),
+      "OAuth-based login",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Supports Markdown" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Submit" }));
+
+    const items = useWorkItemBoardStore.getState().getItems(REPO.path);
+    expect(items[0]).toMatchObject({ description: "OAuth-based login" });
+  });
+
   it("closes without adding an item when Cancel is clicked", async () => {
     const onClose = vi.fn();
     render(<WorkItemForm onClose={onClose} />);

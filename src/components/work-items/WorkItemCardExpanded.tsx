@@ -1,5 +1,7 @@
 import { SquareXIcon } from "lucide-react";
 import React, { useRef, useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
@@ -30,12 +32,16 @@ const WorkItemCardExpanded = ({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isTaskFormDirty, setIsTaskFormDirty] = useState(false);
   const [taskFormInstanceKey, setTaskFormInstanceKey] = useState(0);
+  const [description, setDescription] = useState<string>(
+    item.description ?? "",
+  );
+  const [isPreview, setIsPreview] = useState<Boolean>(false);
 
   function checkDirty(form: HTMLFormElement) {
     const data = Object.fromEntries(new FormData(form));
     const changed =
       data.title !== item.title ||
-      data.description !== item.description ||
+      description !== item.description ||
       data.status !== item.status;
     onDirtyChange(changed);
   }
@@ -45,13 +51,12 @@ const WorkItemCardExpanded = ({
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData) as unknown as {
       title: string;
-      description: string;
       status: Status;
     };
 
     updateItem(repoPath, item.id, {
       title: data.title,
-      description: data.description,
+      description: description,
       status: data.status,
     });
 
@@ -156,12 +161,30 @@ const WorkItemCardExpanded = ({
           className="input-element"
         />
 
-        <textarea
-          name="description"
-          placeholder="Add description"
-          defaultValue={item.description}
-          className="input-element max-h-3/4"
-        ></textarea>
+        <div className="flex flex-col items-start justify-center gap-1">
+          {isPreview ? (
+            <div className="input-element prose prose-invert max-h-3/4 overflow-auto bg-gray-900">
+              <Markdown remarkPlugins={[remarkGfm]}>
+                {description || "*Nothing to preview yet*"}
+              </Markdown>
+            </div>
+          ) : (
+            <textarea
+              name="description"
+              placeholder="Add description"
+              className="input-element max-h-3/4"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            ></textarea>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsPreview(!isPreview)}
+            className="px-2 text-sm tracking-tight text-white underline underline-offset-2 transition-all duration-300 hover:scale-110 hover:cursor-pointer"
+          >
+            {isPreview ? "Show Editor" : "Supports Markdown"}{" "}
+          </button>
+        </div>
       </form>
 
       <hr className="h-0.5 w-full bg-white" />

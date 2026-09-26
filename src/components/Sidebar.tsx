@@ -5,13 +5,16 @@ import {
   FolderGit2,
   NotebookPen,
   PanelRight,
+  Settings,
   Sprout,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useClickOutside } from "../hooks/useClickOutside";
+import { useAppViewStore } from "../stores/appViewStore";
 import { useProjectsStore } from "../stores/projectsStore";
 import { useSelectedRepoStore } from "../stores/selectedRepoStore";
 import { RepoEntry } from "../types/repo.types";
+import SettingsView from "./settings/SettingsView";
 
 type SidebarProps = {
   repoList: RepoEntry[];
@@ -29,9 +32,26 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
   const openProjects = useProjectsStore((s) => s.openProjects);
   const closeProjects = useProjectsStore((s) => s.closeProjects);
   const showProjects = useProjectsStore((s) => s.showProjects);
+  const settingsDialogRef = useRef<HTMLDialogElement>(null);
+  const showSettings = useAppViewStore((s) => s.showSettings);
+  const openSettings = useAppViewStore((s) => s.openSettings);
+  const closeSettings = useAppViewStore((s) => s.closeSettings);
 
   // Only listens while expanded (!collapsed)
   useClickOutside(sidebarRef, () => setCollapsed(true), !collapsed);
+
+  // Keeps the native <dialog> in sync with the store's showSettings flag,
+  // since <dialog> only actually renders once showModal()/close() is called.
+  useEffect(() => {
+    const dialog = settingsDialogRef.current;
+    if (!dialog) return;
+
+    if (showSettings) {
+      dialog.showModal();
+    } else {
+      dialog.close();
+    }
+  }, [showSettings]);
 
   /**
    * Merges two lists of repositories, ensuring that there are no duplicates based on the repository path.
@@ -176,7 +196,7 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
       {!collapsed && (
         <section
           id="sidebar-repo-list"
-          className="min-h-0 flex-1 scrollbar-auto scrollbar-thumb-gray-700 scrollbar-track-gray-500 scrollbar-gutter-auto overflow-y-auto transition-all duration-300"
+          className={`min-h-0 flex-1 scrollbar-auto scrollbar-thumb-gray-700 scrollbar-track-gray-500 scrollbar-gutter-auto transition-all duration-300 ${showSettings ? "overflow-hidden" : "overflow-y-auto"}`}
         >
           <ul className="list-none space-y-2">
             {repoList.map((repo) => {
@@ -194,6 +214,33 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
           </ul>
         </section>
       )}
+
+      <section
+        id="sidebar-footer"
+        className={`mt-auto flex w-full flex-col items-center justify-center gap-2 border-t border-gray-500 pt-3 ${collapsed ? "items-center" : "items-start"}`}
+      >
+        <button
+          onClick={openSettings}
+          title="Settings"
+          className={`flex items-center justify-center overflow-hidden rounded-lg border border-transparent p-2 text-sm transition-all duration-300 hover:border-gray-400 hover:bg-gray-700 ${collapsed ? "" : "w-full"}`}
+        >
+          <Settings className="shrink-0" size={18} />
+          <span
+            className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${collapsed ? "w-0 opacity-0" : "ml-2 w-auto opacity-100"}`}
+          >
+            Settings
+          </span>
+        </button>
+      </section>
+
+      <dialog
+        ref={settingsDialogRef}
+        className="m-auto rounded-2xl bg-transparent backdrop:bg-black/80"
+        onCancel={closeSettings}
+        onClose={closeSettings}
+      >
+        <SettingsView onClose={closeSettings} />
+      </dialog>
     </div>
   );
 };

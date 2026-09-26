@@ -7,10 +7,12 @@ import Sidebar from "./components/Sidebar";
 import WelcomeScreen from "./components/WelcomeScreen";
 import { useProjectsStore } from "./stores/projectsStore";
 import { useRepoListStore } from "./stores/repoListStore";
+import { useAppViewStore } from "./stores/appViewStore";
 import { useSelectedRepoStore } from "./stores/selectedRepoStore";
 
 function App() {
   const repo = useSelectedRepoStore((s) => s.repo);
+  const showSettings = useAppViewStore((s) => s.showSettings);
   const repoList = useRepoListStore((s) => s.repoList);
   const updateRepoListAndRoot = useRepoListStore(
     (s) => s.updateRepoListAndRoot,
@@ -33,7 +35,10 @@ function App() {
           updateRepoListAndRoot={updateRepoListAndRoot}
         />
       </aside>
-      <main className="border-box relative h-full w-full min-w-0 scrollbar-thumb-gray-700 scrollbar-track-gray-500 overflow-auto">
+      {/* TODO: If the number of components in <main> increases, consider making a wrapper component. */}
+      <main
+        className={`border-box relative h-full w-full min-w-0 scrollbar-thumb-gray-700 scrollbar-track-gray-500 ${showSettings ? "overflow-hidden" : "overflow-auto"}`}
+      >
         <AnimatePresence initial={false}>
           {showProjects ? (
             <ProjectsOverview key="projects" />

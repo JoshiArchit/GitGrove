@@ -1,8 +1,6 @@
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import "./App.css";
-import Board from "./components/board/Board";
-import ContributionGraph from "./components/ContributionGraph";
-import RepoSummaryData from "./components/repo-summary/RepoSummary";
+import RepoView from "./components/repo-view/RepoView";
 import Sidebar from "./components/Sidebar";
 import WelcomeScreen from "./components/WelcomeScreen";
 import { usePersistedRepoList } from "./hooks/usePersistedRepoList";
@@ -23,30 +21,12 @@ function App() {
           updateRepoListAndRoot={updateRepoListAndRoot}
         />
       </aside>
-      {/* TODO: If the number of components in <main> increases, consider making a wrapper component. */}
       <main className="border-box relative h-full w-full min-w-0 scrollbar-thumb-gray-700 scrollbar-track-gray-500 overflow-auto">
         <AnimatePresence initial={false}>
           {!reposScanned || !repo ? (
-            <motion.div
-              key="welcome"
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0"
-            >
-              <WelcomeScreen reposScanned={reposScanned} />
-            </motion.div>
+            <WelcomeScreen key="welcome" reposScanned={reposScanned} />
           ) : (
-            <motion.div
-              key="content"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0 flex flex-col gap-3 pr-3"
-            >
-              <RepoSummaryData />
-              <ContributionGraph />
-              <Board />
-            </motion.div>
+            <RepoView key="content" />
           )}
         </AnimatePresence>
       </main>

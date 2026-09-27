@@ -12,7 +12,7 @@ import {
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
-import StatCard from "./StatCard";
+import StatCard from "../ui/StatCard";
 
 const RepoSummary = () => {
   const repoSummary = useSelectedRepoStore((s) => s.summary);

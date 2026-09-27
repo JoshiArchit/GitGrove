@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useState } from "react";
+import ImportSettings from "./ImportSettings";
 
 type SettingsViewProps = {
   onClose: () => void;
@@ -13,8 +14,16 @@ const SECTIONS = [
 ] as const;
 type Section = (typeof SECTIONS)[number];
 
+const SECTION_COMPONENTS: Record<Section, React.ComponentType> = {
+  Export: ImportSettings,
+  Import: ImportSettings,
+  "Danger Zone": ImportSettings,
+  "Default Scan Root": ImportSettings,
+};
+
 const SettingsView = ({ onClose }: SettingsViewProps) => {
   const [activeSection, setActiveSection] = useState<Section>(SECTIONS[0]);
+  const ActiveSection = SECTION_COMPONENTS[activeSection];
 
   return (
     <div className="shadow-card-elevation-2 flex min-h-[50vh] min-w-[60vw] flex-col gap-4 rounded-2xl border-2 border-gray-700 bg-gray-900 px-6 py-4 text-white">
@@ -49,9 +58,7 @@ const SettingsView = ({ onClose }: SettingsViewProps) => {
         </nav>
 
         <section className="flex-1 pl-4">
-          <span className="text-sm text-gray-400">
-            {activeSection} — coming soon
-          </span>
+          <ActiveSection />
         </section>
       </div>
     </div>

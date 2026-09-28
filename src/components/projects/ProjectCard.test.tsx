@@ -13,7 +13,7 @@ const PROJECT: Project = {
 
 describe("ProjectCard", () => {
   it("renders the project id, title, and description", () => {
-    render(<ProjectCard project={PROJECT} />);
+    render(<ProjectCard project={PROJECT} index={1} />);
 
     expect(screen.getByText("Project 1")).toBeInTheDocument();
     expect(screen.getByText("Trail Tracker")).toBeInTheDocument();

@@ -8,8 +8,8 @@ type projectsStore = {
   closeProjects: () => void;
   projects: Project[];
   addProject: (project: Project) => void;
-  updateProject: (id: string, updates: Partial<Project>) => void;
-  deleteProject: (id: string) => void;
+  updateProject: (id: number, updates: Partial<Project>) => void;
+  deleteProject: (id: number) => void;
   getProjects: () => Project[];
 };
 

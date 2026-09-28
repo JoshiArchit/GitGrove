@@ -4,6 +4,9 @@ import type {
   RepoEntry,
   RepoSummaryData,
 } from "../types/repo.types";
+import { ProjectStatus } from "../types/project.types";
+import type { Project } from "../types/project.types";
+import { useProjectsStore } from "../stores/projectsStore";
 
 /**
  *  This file contains mock implementations of Tauri APIs for development purposes.
@@ -37,6 +40,47 @@ const MOCK_SUMMARY: RepoSummaryData = {
   languages: { Rust: 500, TypeScript: 350, TSX: 280, CSS: 20 },
 };
 
+const MOCK_PROJECTS: Project[] = [
+  {
+    projectId: 1,
+    title: "Recipe Sharing App",
+    status: ProjectStatus.Idea,
+    description: "A place to stash and swap family recipes.",
+    items: [],
+  },
+  {
+    projectId: 2,
+    title: "Trail Tracker",
+    status: ProjectStatus.Brainstorming,
+    description: "Log hikes and elevation stats offline-first.",
+    items: [],
+  },
+  {
+    projectId: 3,
+    title: "Git Grove",
+    status: ProjectStatus.InDevelopment,
+    description:
+      "Local-first repo and task manager, the app you're in right now.",
+    repo: "/mock/git-grove",
+    items: [],
+  },
+  {
+    projectId: 4,
+    title: "Side Project",
+    status: ProjectStatus.InTest,
+    description: "Something small, mostly done, still shaking out bugs.",
+    repo: "/mock/side-project",
+    items: [],
+  },
+  {
+    projectId: 5,
+    title: "Budget Buddy",
+    status: ProjectStatus.Deployed,
+    description: "A monthly budgeting tool, live for a small group of users.",
+    items: [],
+  },
+];
+
 export function installTauriMocks() {
   mockIPC((cmd, args) => {
     switch (cmd) {
@@ -57,11 +101,20 @@ export function installTauriMocks() {
     }
   });
 
+  // Seed dummy projects for layout testing, but only if the persisted store
+  // is empty — avoids clobbering edits made in a prior dev session on reload.
+  if (useProjectsStore.getState().projects.length === 0) {
+    useProjectsStore.setState({ projects: MOCK_PROJECTS });
+  }
+
   // Dev console helper: run `clearDevData()` to wipe persisted zustand stores
   // (e.g. accumulated Taskboard items from prior test sessions) without
   // digging through devtools' Application tab.
   (window as unknown as { clearDevData: () => void }).clearDevData = () => {
     localStorage.removeItem("gitgrove-board");
-    console.log("Cleared gitgrove-board. Refresh to see a clean board.");
+    localStorage.removeItem("gitgrove-projects");
+    console.log(
+      "Cleared gitgrove-board and gitgrove-projects. Refresh to see a clean state.",
+    );
   };
 }

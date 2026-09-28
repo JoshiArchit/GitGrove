@@ -16,7 +16,7 @@ function createLocalStorageMock() {
 vi.stubGlobal("localStorage", createLocalStorageMock());
 
 const makeProject = (overrides: Partial<Project> = {}): Project => ({
-  projectId: "project-1",
+  projectId: 1,
   title: "Untitled Project",
   status: ProjectStatus.Idea,
   description: "",
@@ -42,8 +42,8 @@ describe("useProjectsStore", () => {
 
   it("addProject appends to the list", () => {
     const { addProject, getProjects } = useProjectsStore.getState();
-    const projectA = makeProject({ projectId: "p1", title: "Project A" });
-    const projectB = makeProject({ projectId: "p2", title: "Project B" });
+    const projectA = makeProject({ projectId: 1, title: "Project A" });
+    const projectB = makeProject({ projectId: 2, title: "Project B" });
 
     addProject(projectA);
     addProject(projectB);
@@ -54,43 +54,43 @@ describe("useProjectsStore", () => {
   it("updateProject merges updates into the matching project only", () => {
     const { addProject, updateProject, getProjects } =
       useProjectsStore.getState();
-    addProject(makeProject({ projectId: "p1", title: "Original" }));
-    addProject(makeProject({ projectId: "p2", title: "Untouched" }));
+    addProject(makeProject({ projectId: 1, title: "Original" }));
+    addProject(makeProject({ projectId: 2, title: "Untouched" }));
 
-    updateProject("p1", {
+    updateProject(1, {
       title: "Renamed",
       status: ProjectStatus.InDevelopment,
     });
 
     const projects = getProjects();
-    expect(projects.find((p) => p.projectId === "p1")).toMatchObject({
-      name: "Renamed",
+    expect(projects.find((p) => p.projectId === 1)).toMatchObject({
+      title: "Renamed",
       status: ProjectStatus.InDevelopment,
     });
-    expect(projects.find((p) => p.projectId === "p2")?.title).toBe("Untouched");
+    expect(projects.find((p) => p.projectId === 2)?.title).toBe("Untouched");
   });
 
   it("deleteProject removes only the matching project", () => {
     const { addProject, deleteProject, getProjects } =
       useProjectsStore.getState();
-    addProject(makeProject({ projectId: "p1" }));
-    addProject(makeProject({ projectId: "p2" }));
+    addProject(makeProject({ projectId: 1 }));
+    addProject(makeProject({ projectId: 2 }));
 
-    deleteProject("p1");
+    deleteProject(1);
 
-    expect(getProjects().map((p) => p.projectId)).toEqual(["p2"]);
+    expect(getProjects().map((p) => p.projectId)).toEqual([2]);
   });
 
   it("updateProject and deleteProject are no-ops when the project doesn't exist", () => {
     const { addProject, updateProject, deleteProject, getProjects } =
       useProjectsStore.getState();
-    addProject(makeProject({ projectId: "p1" }));
+    addProject(makeProject({ projectId: 1 }));
 
     expect(() => {
-      updateProject("missing", { title: "x" });
-      deleteProject("missing");
+      updateProject(999, { title: "x" });
+      deleteProject(999);
     }).not.toThrow();
 
-    expect(getProjects()).toEqual([makeProject({ projectId: "p1" })]);
+    expect(getProjects()).toEqual([makeProject({ projectId: 1 })]);
   });
 });

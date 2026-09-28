@@ -20,7 +20,7 @@ export enum ProjectStatus {
  * Type representing a project in the application. Each project has a unique identifier, a name, a status indicating its current phase, an optional description, an optional associated repository path, and a list of work items (tasks, stories, bugs) related to the project.
  */
 export type Project = {
-  projectId: string;
+  projectId: number;
   title: string;
   status: ProjectStatus;
   description: string;

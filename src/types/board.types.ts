@@ -40,7 +40,7 @@ export type Task = {
 
 /**
  * Type representing a work item, which can be a story, bug, or other types of tasks.
- * Each work item has a unique identifier, a type, a title, a description, a status, an optional branch name, and a list of associated tasks.
+ * Each work item has a unique identifier, a type, a title, a description, a status, an optional branch name, an optional parent project, and a list of associated tasks.
  */
 export type WorkItem = {
   id: string;
@@ -49,5 +49,7 @@ export type WorkItem = {
   description: string;
   status: Status;
   branch?: string;
+  /** The `projectId` of the Project this item is tagged under, if any. */
+  project?: number;
   tasks: Task[];
 };

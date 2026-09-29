@@ -1,5 +1,3 @@
-import { WorkItem } from "./board.types";
-
 /**
  * Enumeration representing the various statuses a project can have during its lifecycle. Each status is associated with a string value that describes the stage of the project.
  * - Idea: The project is in the initial idea phase.
@@ -17,7 +15,8 @@ export enum ProjectStatus {
 }
 
 /**
- * Type representing a project in the application. Each project has a unique identifier, a name, a status indicating its current phase, an optional description, an optional associated repository path, and a list of work items (tasks, stories, bugs) related to the project.
+ * Type representing a project in the application. Each project has a unique identifier, a title, a status indicating its current phase, a description, and an optional associated repository path.
+ * Associated work items (stories, bugs) aren't stored here — they're found by filtering the work-item board store for items whose `project` field matches this project's `projectId`.
  */
 export type Project = {
   projectId: number;
@@ -25,5 +24,4 @@ export type Project = {
   status: ProjectStatus;
   description: string;
   repo?: string | undefined;
-  items: WorkItem[];
 };

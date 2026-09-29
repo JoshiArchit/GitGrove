@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { act, renderHook, waitFor } from "@testing-library/react";
 import { invoke } from "@tauri-apps/api/core";
 import { load } from "@tauri-apps/plugin-store";
-import { usePersistedRepoList } from "./usePersistedRepoList";
+import { useRepoListStore } from "./repoListStore";
 import { PersistedRepoState, RepoEntry } from "../types/repo.types";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
@@ -20,20 +19,20 @@ function makeStoreMock(persisted: PersistedRepoState | null) {
 }
 
 beforeEach(() => {
+  useRepoListStore.setState({ repoList: [], scannedRoots: [] });
   mockedInvoke.mockReset();
   mockedLoad.mockReset();
 });
 
-describe("usePersistedRepoList — initial load", () => {
-  it("starts empty when the store has no persisted data", async () => {
+describe("useRepoListStore — init", () => {
+  it("stays empty when the store has no persisted data", async () => {
     const store = makeStoreMock(null);
     mockedLoad.mockResolvedValue(store as never);
 
-    const { result } = renderHook(() => usePersistedRepoList());
+    await useRepoListStore.getState().init();
 
-    await waitFor(() => expect(store.get).toHaveBeenCalled());
-    expect(result.current.repoList).toEqual([]);
-    expect(result.current.scannedRoots).toEqual([]);
+    expect(useRepoListStore.getState().repoList).toEqual([]);
+    expect(useRepoListStore.getState().scannedRoots).toEqual([]);
   });
 
   it("re-validates persisted repos against disk and drops the ones that no longer resolve", async () => {
@@ -51,29 +50,27 @@ describe("usePersistedRepoList — initial load", () => {
       return path === "/repos/a" ? ({ path, name: "a" } as RepoEntry) : null;
     });
 
-    const { result } = renderHook(() => usePersistedRepoList());
+    await useRepoListStore.getState().init();
 
-    await waitFor(() =>
-      expect(result.current.repoList).toEqual([{ path: "/repos/a", name: "a" }]),
-    );
-    expect(result.current.scannedRoots).toEqual(["/root"]);
+    expect(useRepoListStore.getState().repoList).toEqual([
+      { path: "/repos/a", name: "a" },
+    ]);
+    expect(useRepoListStore.getState().scannedRoots).toEqual(["/root"]);
   });
 });
 
-describe("usePersistedRepoList — updateRepoListAndRoot", () => {
+describe("useRepoListStore — updateRepoListAndRoot", () => {
   it("updates the repo list, adds the new root, and persists both to the store", async () => {
     const store = makeStoreMock(null);
     mockedLoad.mockResolvedValue(store as never);
-    const { result } = renderHook(() => usePersistedRepoList());
-    await waitFor(() => expect(store.get).toHaveBeenCalled());
+    await useRepoListStore.getState().init();
 
     const newRepos: RepoEntry[] = [{ path: "/repos/new", name: "new" }];
-    await act(async () => {
-      result.current.updateRepoListAndRoot(newRepos, "/new-root");
-    });
+    useRepoListStore.getState().updateRepoListAndRoot(newRepos, "/new-root");
+    await Promise.resolve();
 
-    expect(result.current.repoList).toEqual(newRepos);
-    expect(result.current.scannedRoots).toEqual(["/new-root"]);
+    expect(useRepoListStore.getState().repoList).toEqual(newRepos);
+    expect(useRepoListStore.getState().scannedRoots).toEqual(["/new-root"]);
     expect(store.set).toHaveBeenCalledWith("repoList", {
       repos: newRepos,
       scannedRoots: ["/new-root"],
@@ -88,18 +85,15 @@ describe("usePersistedRepoList — updateRepoListAndRoot", () => {
     };
     const store = makeStoreMock(persisted);
     mockedLoad.mockResolvedValue(store as never);
-    const { result } = renderHook(() => usePersistedRepoList());
-    await waitFor(() =>
-      expect(result.current.scannedRoots).toEqual(["/existing-root"]),
-    );
+    await useRepoListStore.getState().init();
 
     const newRepos: RepoEntry[] = [{ path: "/repos/new", name: "new" }];
-    await act(async () => {
-      result.current.updateRepoListAndRoot(newRepos);
-    });
+    useRepoListStore.getState().updateRepoListAndRoot(newRepos);
 
-    expect(result.current.repoList).toEqual(newRepos);
-    expect(result.current.scannedRoots).toEqual(["/existing-root"]);
+    expect(useRepoListStore.getState().repoList).toEqual(newRepos);
+    expect(useRepoListStore.getState().scannedRoots).toEqual([
+      "/existing-root",
+    ]);
   });
 
   it("does not add a duplicate root that was already scanned", async () => {
@@ -109,13 +103,10 @@ describe("usePersistedRepoList — updateRepoListAndRoot", () => {
     };
     const store = makeStoreMock(persisted);
     mockedLoad.mockResolvedValue(store as never);
-    const { result } = renderHook(() => usePersistedRepoList());
-    await waitFor(() => expect(result.current.scannedRoots).toEqual(["/root"]));
+    await useRepoListStore.getState().init();
 
-    await act(async () => {
-      result.current.updateRepoListAndRoot([], "/root");
-    });
+    useRepoListStore.getState().updateRepoListAndRoot([], "/root");
 
-    expect(result.current.scannedRoots).toEqual(["/root"]);
+    expect(useRepoListStore.getState().scannedRoots).toEqual(["/root"]);
   });
 });

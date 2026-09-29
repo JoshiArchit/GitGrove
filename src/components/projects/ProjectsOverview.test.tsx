@@ -27,7 +27,6 @@ const makeProject = (overrides: Partial<Project> = {}): Project => ({
   title: "Untitled Project",
   status: ProjectStatus.Idea,
   description: "",
-  items: [],
   ...overrides,
 });
 

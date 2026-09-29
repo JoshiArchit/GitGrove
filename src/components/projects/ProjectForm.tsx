@@ -42,7 +42,6 @@ const ProjectForm = ({
       title: data.title,
       description, // Use the state since when in preview, FormData cannot fetch description
       status: ProjectStatus.Idea,
-      items: [],
     };
 
     addProject(project);

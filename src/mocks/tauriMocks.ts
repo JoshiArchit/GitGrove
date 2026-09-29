@@ -46,14 +46,12 @@ const MOCK_PROJECTS: Project[] = [
     title: "Recipe Sharing App",
     status: ProjectStatus.Idea,
     description: "A place to stash and swap family recipes.",
-    items: [],
   },
   {
     projectId: 2,
     title: "Trail Tracker",
     status: ProjectStatus.Brainstorming,
     description: "Log hikes and elevation stats offline-first.",
-    items: [],
   },
   {
     projectId: 3,
@@ -62,7 +60,6 @@ const MOCK_PROJECTS: Project[] = [
     description:
       "Local-first repo and task manager, the app you're in right now.",
     repo: "/mock/git-grove",
-    items: [],
   },
   {
     projectId: 4,
@@ -70,14 +67,12 @@ const MOCK_PROJECTS: Project[] = [
     status: ProjectStatus.InTest,
     description: "Something small, mostly done, still shaking out bugs.",
     repo: "/mock/side-project",
-    items: [],
   },
   {
     projectId: 5,
     title: "Budget Buddy",
     status: ProjectStatus.Deployed,
     description: "A monthly budgeting tool, live for a small group of users.",
-    items: [],
   },
 ];
 

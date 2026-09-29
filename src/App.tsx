@@ -1,18 +1,27 @@
 import { AnimatePresence } from "motion/react";
+import { useEffect } from "react";
 import "./App.css";
 import ProjectsOverview from "./components/projects/ProjectsOverview";
 import RepoView from "./components/repo-view/RepoView";
 import Sidebar from "./components/Sidebar";
 import WelcomeScreen from "./components/WelcomeScreen";
-import { usePersistedRepoList } from "./hooks/usePersistedRepoList";
 import { useProjectsStore } from "./stores/projectsStore";
+import { useRepoListStore } from "./stores/repoListStore";
 import { useSelectedRepoStore } from "./stores/selectedRepoStore";
 
 function App() {
   const repo = useSelectedRepoStore((s) => s.repo);
-  const { repoList, updateRepoListAndRoot } = usePersistedRepoList();
+  const repoList = useRepoListStore((s) => s.repoList);
+  const updateRepoListAndRoot = useRepoListStore(
+    (s) => s.updateRepoListAndRoot,
+  );
+  const initRepoList = useRepoListStore((s) => s.init);
   const reposScanned = repoList.length > 0;
   const showProjects = useProjectsStore((s) => s.showProjects);
+
+  useEffect(() => {
+    initRepoList();
+  }, [initRepoList]);
 
   return (
     <div className="relative flex h-screen min-h-120 w-screen min-w-160 gap-4 bg-black p-3 font-mono">

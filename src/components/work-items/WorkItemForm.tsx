@@ -65,16 +65,24 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
         </button>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <input
-          type="text"
-          name="title"
-          placeholder="Enter title for the task"
-          required
-          className="input-element"
-        />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <span className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase">
+            Title
+          </span>
+          <input
+            type="text"
+            name="title"
+            placeholder="Enter title for the task"
+            required
+            className="input-element"
+          />
+        </div>
 
         <div className="flex flex-col items-start justify-center gap-1">
+          <span className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase">
+            Description
+          </span>
           {isPreview ? (
             <div className="input-element prose prose-invert min-h-3/4">
               <Markdown remarkPlugins={[remarkGfm]}>
@@ -101,8 +109,13 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
       </div>
 
       <div className="flex gap-4">
-        <div className="flex w-1/2 flex-col items-start justify-center gap-2">
-          <label htmlFor="branch">Select a branch</label>
+        <div className="flex w-1/2 flex-col items-start justify-center gap-1">
+          <label
+            htmlFor="branch"
+            className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase"
+          >
+            Select a branch
+          </label>
           <select
             id="branch"
             name="branch"
@@ -115,7 +128,12 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
         </div>
 
         <div className="flex w-1/2 flex-col items-start justify-center gap-2">
-          <label htmlFor="type">Select work item type</label>
+          <label
+            htmlFor="type"
+            className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase"
+          >
+            Select work item type
+          </label>
           <select
             id="type"
             name="type"
@@ -129,7 +147,12 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
       </div>
 
       <div className="flex flex-col items-start justify-center gap-2">
-        <label htmlFor="project">Select a project</label>
+        <label
+          htmlFor="project"
+          className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase"
+        >
+          Select a project
+        </label>
         <select
           id="project"
           name="project"

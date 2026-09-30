@@ -144,8 +144,11 @@ const WorkItemCardExpanded = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="status" className="text-white">
+        <div className="flex flex-col gap-1">
+          <label
+            htmlFor="status"
+            className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase"
+          >
             Status
           </label>
           <select
@@ -160,8 +163,11 @@ const WorkItemCardExpanded = ({
           </select>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="project" className="text-white">
+        <div className="flex flex-col gap-1">
+          <label
+            htmlFor="project"
+            className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase"
+          >
             Project
           </label>
           <select
@@ -179,15 +185,23 @@ const WorkItemCardExpanded = ({
           </select>
         </div>
 
-        <input
-          type="text"
-          name="title"
-          defaultValue={item.title}
-          required
-          className="input-element"
-        />
+        <div className="flex flex-col gap-1">
+          <span className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase">
+            Title
+          </span>
+          <input
+            type="text"
+            name="title"
+            defaultValue={item.title}
+            required
+            className="input-element"
+          />
+        </div>
 
         <div className="flex flex-col items-start justify-center gap-1">
+          <span className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase">
+            Description
+          </span>
           {isPreview ? (
             <div className="input-element prose prose-invert max-h-3/4 overflow-auto bg-gray-900">
               <Markdown remarkPlugins={[remarkGfm]}>

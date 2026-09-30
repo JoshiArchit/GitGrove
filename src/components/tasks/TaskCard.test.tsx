@@ -42,10 +42,11 @@ afterEach(() => {
 });
 
 describe("TaskCard", () => {
-  it("renders the task title and a closed dialog", () => {
+  it("renders the task title, its status, and a closed dialog", () => {
     render(<TaskCard workItemId="item-1" task={task} />);
 
     expect(screen.getByText("Write the changelog")).toBeInTheDocument();
+    expect(screen.getByText(TaskStatus.New)).toBeInTheDocument();
     expect(getDialog()).not.toHaveAttribute("open");
   });
 

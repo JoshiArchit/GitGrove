@@ -37,7 +37,8 @@ const TaskForm = ({
     const data = Object.fromEntries(new FormData(form));
     const changed =
       data.title !== (task?.title ?? "") ||
-      description !== (task?.description ?? "");
+      description !== (task?.description ?? "") ||
+      data.status !== (task?.status ?? TaskStatus.New);
     onDirtyChange(changed);
   }
 
@@ -46,19 +47,21 @@ const TaskForm = ({
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData) as unknown as {
       title: string;
+      status: TaskStatus;
     };
 
     if (task) {
       updateTask(repoPath, workItemId, task.id, {
         title: data.title,
         description: description,
+        status: data.status,
       });
     } else {
       addTask(repoPath, workItemId, {
         id: crypto.randomUUID(),
         title: data.title,
         description: description,
-        status: TaskStatus.New,
+        status: data.status,
       });
     }
 
@@ -90,6 +93,20 @@ const TaskForm = ({
         onInput={(e) => checkDirty(e.currentTarget)}
         className="flex flex-col gap-4"
       >
+        <div className="flex flex-col gap-2">
+          <label htmlFor="status">Status</label>
+          <select
+            id="status"
+            name="status"
+            className="w-max rounded-2xl border-2 border-solid border-gray-500 px-4 py-2 focus-visible:outline-none"
+            defaultValue={task?.status ?? TaskStatus.New}
+          >
+            {Object.values(TaskStatus).map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+
         <input
           name="title"
           type="text"

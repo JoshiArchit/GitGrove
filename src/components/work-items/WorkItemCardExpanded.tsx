@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
+import { useProjectsStore } from "../../stores/projectsStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Status, WorkItem } from "../../types/board.types";
@@ -27,7 +28,9 @@ const WorkItemCardExpanded = ({
   const repoPath = useSelectedRepoStore((s) => s.repo!.path);
   const updateItem = useWorkItemBoardStore((s) => s.updateItem);
   const deleteItem = useWorkItemBoardStore((s) => s.deleteItem);
+  const projects = useProjectsStore((s) => s.projects);
   const itemColor = resolveWorkItemColor(item.type);
+  const itemProject = item.project?.toString() ?? "";
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isTaskFormDirty, setIsTaskFormDirty] = useState(false);
@@ -42,7 +45,8 @@ const WorkItemCardExpanded = ({
     const changed =
       data.title !== item.title ||
       description !== item.description ||
-      data.status !== item.status;
+      data.status !== item.status ||
+      data.project !== itemProject;
     onDirtyChange(changed);
   }
 
@@ -52,12 +56,14 @@ const WorkItemCardExpanded = ({
     const data = Object.fromEntries(formData) as unknown as {
       title: string;
       status: Status;
+      project: string;
     };
 
     updateItem(repoPath, item.id, {
       title: data.title,
       description: description,
       status: data.status,
+      project: data.project ? Number(data.project) : undefined,
     });
 
     onDirtyChange(false);
@@ -153,6 +159,26 @@ const WorkItemCardExpanded = ({
             })}
           </select>
         </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="project" className="text-white">
+            Project
+          </label>
+          <select
+            id="project"
+            name="project"
+            className="w-max rounded-2xl border-2 border-solid border-gray-500 px-4 py-2 text-white focus-visible:outline-none"
+            defaultValue={itemProject}
+          >
+            <option value="">No project</option>
+            {projects.map((p) => (
+              <option key={p.projectId} value={p.projectId}>
+                {p.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <input
           type="text"
           name="title"

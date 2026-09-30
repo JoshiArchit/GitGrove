@@ -2,6 +2,7 @@ import { SquareXIcon } from "lucide-react";
 import React, { useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useProjectsStore } from "../../stores/projectsStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Status, WorkItem, WorkItemtype } from "../../types/board.types";
@@ -15,12 +16,14 @@ type WorkItemFormValues = {
   description: string;
   branch: string;
   type: WorkItemtype;
+  project: string;
 };
 
 const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
   const branches = useSelectedRepoStore((s) => s.summary?.branches);
   const repoPath = useSelectedRepoStore((s) => s.repo!.path);
   const addItem = useWorkItemBoardStore((s) => s.addItem);
+  const projects = useProjectsStore((s) => s.projects);
   const [description, setDescription] = useState<string>("");
   const [isPreview, setIsPreview] = useState<Boolean>(false);
 
@@ -37,6 +40,7 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
       title: data.title,
       description: description, // Use the state since when in preview, FormData cannot fetch description
       branch: data.branch,
+      project: data.project ? Number(data.project) : undefined,
       status: Status.New,
       tasks: [],
     };
@@ -122,6 +126,22 @@ const WorkItemForm = ({ onClose }: WorkItemFormProps) => {
             })}
           </select>
         </div>
+      </div>
+
+      <div className="flex flex-col items-start justify-center gap-2">
+        <label htmlFor="project">Select a project</label>
+        <select
+          id="project"
+          name="project"
+          className="w-full rounded-2xl border-2 border-solid border-gray-500 px-4 py-2 focus-visible:outline-none"
+        >
+          <option value="">No project</option>
+          {projects.map((p) => (
+            <option key={p.projectId} value={p.projectId}>
+              {p.title}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex justify-start gap-4">

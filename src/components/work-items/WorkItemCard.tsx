@@ -1,3 +1,4 @@
+import { useDraggable } from "@dnd-kit/react";
 import { ClipboardCheck } from "lucide-react";
 import { useRef, useState } from "react";
 import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
@@ -10,6 +11,8 @@ type WorkItemCardProps = {
 };
 
 const WorkItemCard = ({ item, index }: WorkItemCardProps) => {
+  const { ref, isDragging } = useDraggable({ id: item.id });
+
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [instanceKey, setInstanceKey] = useState(0);
@@ -41,7 +44,8 @@ const WorkItemCard = ({ item, index }: WorkItemCardProps) => {
   return (
     <>
       <div
-        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-700 ${itemColor.borderLeft} transition-all duration-150 hover:scale-105`}
+        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-700 ${itemColor.borderLeft} transition-all duration-150 hover:scale-105 ${isDragging ? "opacity-80" : undefined}`}
+        ref={ref}
         onClick={openDialog}
       >
         <div className="flex w-full flex-col gap-2">

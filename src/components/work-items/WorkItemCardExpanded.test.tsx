@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useProjectsStore } from "../../stores/projectsStore";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import {
@@ -10,8 +11,21 @@ import {
   WorkItem,
   WorkItemtype,
 } from "../../types/board.types";
+import { ProjectStatus } from "../../types/project.types";
 import { RepoEntry } from "../../types/repo.types";
 import WorkItemCardExpanded from "./WorkItemCardExpanded";
+
+function createLocalStorageMock() {
+  const store = new Map<string, string>();
+  return {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => store.set(key, value),
+    removeItem: (key: string) => store.delete(key),
+    clear: () => store.clear(),
+  };
+}
+
+vi.stubGlobal("localStorage", createLocalStorageMock());
 
 vi.mock("../tasks/TaskCard", () => ({
   default: ({ task }: { task: Task }) => (
@@ -37,8 +51,10 @@ const item: WorkItem = {
 beforeEach(() => {
   useSelectedRepoStore.setState(initialSelectedRepoState, true);
   useWorkItemBoardStore.setState({ boards: {} });
+  useProjectsStore.setState({ projects: [] });
   useSelectedRepoStore.setState({ repo: REPO });
   useWorkItemBoardStore.getState().addItem(REPO.path, item);
+  localStorage.clear();
 });
 
 function fireInput(element: HTMLElement, value: string) {
@@ -187,6 +203,74 @@ describe("WorkItemCardExpanded — save", () => {
     await userEvent.click(screen.getByRole("button", { name: "Show Editor" }));
 
     expect(screen.getByDisplayValue(item.description)).toBeInTheDocument();
+  });
+});
+
+describe("WorkItemCardExpanded — project tagging", () => {
+  it("tags the item with the selected project on submit", async () => {
+    useProjectsStore.setState({
+      projects: [
+        {
+          projectId: 1,
+          title: "Trail Tracker",
+          status: ProjectStatus.InDevelopment,
+          description: "",
+        },
+      ],
+    });
+    render(
+      <WorkItemCardExpanded
+        item={item}
+        isDirty={true}
+        onDirtyChange={vi.fn()}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.selectOptions(
+      screen.getByLabelText("Project"),
+      "Trail Tracker",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const updated = useWorkItemBoardStore
+      .getState()
+      .getItems(REPO.path)
+      .find((i) => i.id === item.id);
+    expect(updated?.project).toBe(1);
+  });
+
+  it("reports dirty once the project selection diverges, and clean once reverted", async () => {
+    useProjectsStore.setState({
+      projects: [
+        {
+          projectId: 1,
+          title: "Trail Tracker",
+          status: ProjectStatus.InDevelopment,
+          description: "",
+        },
+      ],
+    });
+    const onDirtyChange = vi.fn();
+    render(
+      <WorkItemCardExpanded
+        item={item}
+        isDirty={false}
+        onDirtyChange={onDirtyChange}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.selectOptions(
+      screen.getByLabelText("Project"),
+      "Trail Tracker",
+    );
+    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
+
+    await userEvent.selectOptions(screen.getByLabelText("Project"), "No project");
+    expect(onDirtyChange).toHaveBeenLastCalledWith(false);
   });
 });
 

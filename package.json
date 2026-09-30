@@ -12,6 +12,7 @@
     "test-coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@dnd-kit/react": "^0.5.0",
     "@fortawesome/react-fontawesome": "^3.5.0",
     "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/api": "^2",

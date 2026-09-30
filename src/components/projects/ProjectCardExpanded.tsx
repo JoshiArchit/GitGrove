@@ -1,9 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { XIcon } from "lucide-react";
+import { ClipboardList, XIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
 import { useProjectsStore } from "../../stores/projectsStore";
 import { useRepoListStore } from "../../stores/repoListStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
@@ -59,9 +60,7 @@ const ProjectCardExpanded = ({
   const [title, setTitle] = useState(project.title);
   const [description, setDescription] = useState(project.description);
   const [status, setStatus] = useState<ProjectStatus>(project.status);
-  const [selectedRepoPath, setSelectedRepoPath] = useState(
-    project.repo ?? "",
-  );
+  const [selectedRepoPath, setSelectedRepoPath] = useState(project.repo ?? "");
   const [isPreview, setIsPreview] = useState(false);
 
   useEffect(() => {
@@ -177,8 +176,11 @@ const ProjectCardExpanded = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="status" className="text-white">
+        <div className="flex flex-col gap-1">
+          <label
+            htmlFor="status"
+            className="px-1 text-sm font-semibold text-gray-400 uppercase"
+          >
             Status
           </label>
           <select
@@ -194,16 +196,24 @@ const ProjectCardExpanded = ({
           </select>
         </div>
 
-        <input
-          type="text"
-          name="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          className="input-element"
-        />
+        <div className="flex flex-col gap-1">
+          <span className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase">
+            Project Title
+          </span>
+          <input
+            type="text"
+            name="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            className="input-element"
+          />
+        </div>
 
         <div className="flex flex-col items-start justify-center gap-1">
+          <span className="px-1 text-sm font-bold tracking-tight text-gray-400 uppercase">
+            Project Brief
+          </span>
           {isPreview ? (
             <div className="input-element prose prose-invert max-h-3/4 overflow-auto bg-gray-900">
               <Markdown remarkPlugins={[remarkGfm]}>
@@ -263,39 +273,68 @@ const ProjectCardExpanded = ({
               </button>
             </div>
             <span className="text-xs text-gray-400">
-              Don't see the repo you're looking for? Rescan a root folder or
-              add it directly without leaving this dialog.
+              Don't see the repo you're looking for? Rescan a root folder or add
+              it directly without leaving this dialog.
             </span>
           </div>
         )}
       </form>
 
       <hr className="h-0.5 w-full bg-white" />
-
-      <section className="flex flex-col gap-4">
+      <div className="flex w-full flex-col">
         <span className="font-semibold tracking-widest text-white uppercase">
           Bugs &amp; Stories
         </span>
+        <span className="text-xs font-semibold text-gray-500">
+          To view more details about tasks open the repo-view from the sidebar
+        </span>
+      </div>
 
-        <section className="flex max-h-64 flex-col gap-2 overflow-auto rounded-xl border border-gray-500 px-4 py-2">
+      <div className="max-h-64 overflow-hidden rounded-xl border border-gray-500">
+        <section className="flex h-full max-h-64 flex-col gap-2 overflow-auto px-4 py-2">
           {associatedItems.length === 0 && (
             <span className="text-gray-400">
               No bugs or stories tagged to this project yet
             </span>
           )}
-          {associatedItems.map((item) => (
-            <div
-              key={item.id}
-              className="flex flex-col rounded-lg border border-gray-700 px-3 py-2 text-white"
-            >
-              <span className="text-xs text-gray-500 uppercase">
-                {item.type}
-              </span>
-              <span>{item.title}</span>
-            </div>
-          ))}
+          {associatedItems.map((item) => {
+            const colorConfig = resolveWorkItemColor(item.type);
+            return (
+              <div
+                key={item.id}
+                className={`flex flex-col rounded-lg border-l-4 border-gray-700 bg-gray-800 px-3 py-2 text-white ${colorConfig.borderLeft}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`size-2 rounded-full ${colorConfig.bullet}`}
+                    />
+                    <span className="text-xs font-bold text-gray-500 uppercase">
+                      {item.type}
+                    </span>
+                  </div>
+
+                  <span className="text-xs font-bold text-gray-500 uppercase">
+                    {item.status}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>{item.title}</span>
+                  {item.tasks.length == 0 ? (
+                    <div className="text-gray-600">No subtasks</div>
+                  ) : (
+                    <span className="flex gap-0.5">
+                      <ClipboardList className="text-yellow-400" />{" "}
+                      {item.tasks.length}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </section>
-      </section>
+      </div>
     </div>
   );
 };

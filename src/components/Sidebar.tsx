@@ -28,6 +28,7 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const openProjects = useProjectsStore((s) => s.openProjects);
   const closeProjects = useProjectsStore((s) => s.closeProjects);
+  const showProjects = useProjectsStore((s) => s.showProjects);
 
   // Only listens while expanded (!collapsed)
   useClickOutside(sidebarRef, () => setCollapsed(true), !collapsed);
@@ -182,7 +183,7 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
               return (
                 <li
                   key={repo.name}
-                  className={`transition-color hover: cursor-pointer rounded-lg border border-transparent px-4 py-2 text-sm duration-300 hover:bg-gray-600 ${activeRepo?.name === repo.name ? "bg-blue-600" : ""}`}
+                  className={`transition-color hover: cursor-pointer rounded-lg border border-transparent px-4 py-2 text-sm duration-300 hover:bg-gray-600 ${activeRepo?.name === repo.name && !showProjects ? "bg-blue-600" : ""}`}
 
                   onClick={() => handleSetActiveRepo(repo)}
                 >

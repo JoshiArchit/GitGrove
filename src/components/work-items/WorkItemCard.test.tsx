@@ -1,7 +1,13 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Status, WorkItem, WorkItemtype } from "../../types/board.types";
+import {
+  Status,
+  Task,
+  TaskStatus,
+  WorkItem,
+  WorkItemtype,
+} from "../../types/board.types";
 import WorkItemCard from "./WorkItemCard";
 
 let capturedOnDirtyChange: ((dirty: boolean) => void) | null = null;
@@ -49,6 +55,35 @@ describe("WorkItemCard", () => {
 
     expect(screen.getByText("Add login flow")).toBeInTheDocument();
     expect(getDialog()).not.toHaveAttribute("open");
+  });
+
+  it("shows 'No tasks' when the item has none", () => {
+    render(<WorkItemCard item={item} index={0} />);
+
+    expect(screen.getByText("No tasks")).toBeInTheDocument();
+  });
+
+  it("shows a completed/total task count once the item has tasks", () => {
+    const makeTask = (overrides: Partial<Task>): Task => ({
+      id: crypto.randomUUID(),
+      title: "task",
+      description: "",
+      status: TaskStatus.New,
+      ...overrides,
+    });
+    const itemWithTasks: WorkItem = {
+      ...item,
+      tasks: [
+        makeTask({ status: TaskStatus.Completed }),
+        makeTask({ status: TaskStatus.Completed }),
+        makeTask({ status: TaskStatus.InProgress }),
+      ],
+    };
+
+    render(<WorkItemCard item={itemWithTasks} index={0} />);
+
+    expect(screen.getByText("2/3")).toBeInTheDocument();
+    expect(screen.queryByText("No tasks")).not.toBeInTheDocument();
   });
 
   it("opens the expanded card dialog when clicked", async () => {

@@ -129,6 +129,35 @@ describe("TaskForm — add mode", () => {
 
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
   });
+
+  it("creates the task with the selected status", async () => {
+    seedWorkItem();
+    render(
+      <TaskForm
+        workItemId={WORK_ITEM_ID}
+        isDirty={true}
+        onDirtyChange={vi.fn()}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.type(
+      screen.getByPlaceholderText("Enter title for the Task"),
+      "New task",
+    );
+    await userEvent.selectOptions(
+      screen.getByLabelText("Status"),
+      TaskStatus.InProgress,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const item = useWorkItemBoardStore
+      .getState()
+      .getItems(REPO.path)
+      .find((i) => i.id === WORK_ITEM_ID);
+    expect(item?.tasks[0]).toMatchObject({ status: TaskStatus.InProgress });
+  });
 });
 
 describe("TaskForm — edit mode", () => {
@@ -148,7 +177,60 @@ describe("TaskForm — edit mode", () => {
     expect(
       screen.getByDisplayValue("Summarize this release"),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText("Status")).toHaveValue(existingTask.status);
     expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
+  });
+
+  it("reports dirty once the status diverges, and clean once reverted", async () => {
+    const onDirtyChange = vi.fn();
+    render(
+      <TaskForm
+        workItemId={WORK_ITEM_ID}
+        task={existingTask}
+        isDirty={false}
+        onDirtyChange={onDirtyChange}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.selectOptions(
+      screen.getByLabelText("Status"),
+      TaskStatus.Completed,
+    );
+    expect(onDirtyChange).toHaveBeenLastCalledWith(true);
+
+    await userEvent.selectOptions(
+      screen.getByLabelText("Status"),
+      existingTask.status,
+    );
+    expect(onDirtyChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it("updates the task's status on submit", async () => {
+    seedWorkItem([existingTask]);
+    render(
+      <TaskForm
+        workItemId={WORK_ITEM_ID}
+        task={existingTask}
+        isDirty={true}
+        onDirtyChange={vi.fn()}
+        onRequestClose={vi.fn()}
+        onSaved={vi.fn()}
+      />,
+    );
+
+    await userEvent.selectOptions(
+      screen.getByLabelText("Status"),
+      TaskStatus.Completed,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const item = useWorkItemBoardStore
+      .getState()
+      .getItems(REPO.path)
+      .find((i) => i.id === WORK_ITEM_ID);
+    expect(item?.tasks[0]).toMatchObject({ status: TaskStatus.Completed });
   });
 
   it("updates the existing task's fields on submit", async () => {

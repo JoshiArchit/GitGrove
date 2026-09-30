@@ -92,12 +92,8 @@ const ProjectsOverview = () => {
                   </span>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {sectionProjects.map((item, index) => (
-                      <ProjectCard
-                        key={item.projectId}
-                        index={index + 1}
-                        project={item}
-                      />
+                    {sectionProjects.map((item) => (
+                      <ProjectCard key={item.projectId} project={item} />
                     ))}
                   </div>
                 )}

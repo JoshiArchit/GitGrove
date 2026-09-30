@@ -1,17 +1,27 @@
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import { useEffect } from "react";
 import "./App.css";
-import Board from "./components/board/Board";
-import ContributionGraph from "./components/ContributionGraph";
-import RepoSummaryData from "./components/repo-summary/RepoSummary";
+import ProjectsOverview from "./components/projects/ProjectsOverview";
+import RepoView from "./components/repo-view/RepoView";
 import Sidebar from "./components/Sidebar";
 import WelcomeScreen from "./components/WelcomeScreen";
-import { usePersistedRepoList } from "./hooks/usePersistedRepoList";
+import { useProjectsStore } from "./stores/projectsStore";
+import { useRepoListStore } from "./stores/repoListStore";
 import { useSelectedRepoStore } from "./stores/selectedRepoStore";
 
 function App() {
   const repo = useSelectedRepoStore((s) => s.repo);
-  const { repoList, updateRepoListAndRoot } = usePersistedRepoList();
+  const repoList = useRepoListStore((s) => s.repoList);
+  const updateRepoListAndRoot = useRepoListStore(
+    (s) => s.updateRepoListAndRoot,
+  );
+  const initRepoList = useRepoListStore((s) => s.init);
   const reposScanned = repoList.length > 0;
+  const showProjects = useProjectsStore((s) => s.showProjects);
+
+  useEffect(() => {
+    initRepoList();
+  }, [initRepoList]);
 
   return (
     <div className="relative flex h-screen min-h-120 w-screen min-w-160 gap-4 bg-black p-3 font-mono">
@@ -23,30 +33,14 @@ function App() {
           updateRepoListAndRoot={updateRepoListAndRoot}
         />
       </aside>
-      {/* TODO: If the number of components in <main> increases, consider making a wrapper component. */}
       <main className="border-box relative h-full w-full min-w-0 scrollbar-thumb-gray-700 scrollbar-track-gray-500 overflow-auto">
         <AnimatePresence initial={false}>
-          {!reposScanned || !repo ? (
-            <motion.div
-              key="welcome"
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0"
-            >
-              <WelcomeScreen reposScanned={reposScanned} />
-            </motion.div>
+          {showProjects ? (
+            <ProjectsOverview key="projects" />
+          ) : !reposScanned || !repo ? (
+            <WelcomeScreen key="welcome" reposScanned={reposScanned} />
           ) : (
-            <motion.div
-              key="content"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0 flex flex-col gap-3 pr-3"
-            >
-              <RepoSummaryData />
-              <ContributionGraph />
-              <Board />
-            </motion.div>
+            <RepoView key="content" />
           )}
         </AnimatePresence>
       </main>

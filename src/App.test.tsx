@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import App from "./App";
 import { useSelectedRepoStore } from "./stores/selectedRepoStore";
-import { usePersistedRepoList } from "./hooks/usePersistedRepoList";
+import { useRepoListStore } from "./stores/repoListStore";
 import { RepoEntry } from "./types/repo.types";
 
 vi.mock("./components/ContributionGraph", () => ({
@@ -22,38 +22,34 @@ vi.mock("./components/WelcomeScreen", () => ({
     <div data-testid="welcome-screen">{String(reposScanned)}</div>
   ),
 }));
-vi.mock("./hooks/usePersistedRepoList", () => ({
-  usePersistedRepoList: vi.fn(),
+// init() otherwise hits the real Tauri store plugin, which isn't available in
+// jsdom — mocked load() resolving no persisted data makes init() a no-op, so
+// each test's own repoListStore.setState() below is left untouched.
+vi.mock("@tauri-apps/plugin-store", () => ({
+  load: vi.fn().mockResolvedValue({
+    get: vi.fn().mockResolvedValue(null),
+    set: vi.fn().mockResolvedValue(undefined),
+    save: vi.fn().mockResolvedValue(undefined),
+  }),
 }));
 
-const mockedUsePersistedRepoList = vi.mocked(usePersistedRepoList);
 const initialSelectedRepoState = useSelectedRepoStore.getState();
+const initialRepoListState = useRepoListStore.getState();
 const REPO: RepoEntry = { path: "/repos/git-grove", name: "git-grove" };
 
 beforeEach(() => {
   useSelectedRepoStore.setState(initialSelectedRepoState, true);
+  useRepoListStore.setState(initialRepoListState, true);
 });
 
 describe("App", () => {
   it("always renders the sidebar", () => {
-    mockedUsePersistedRepoList.mockReturnValue({
-      repoList: [],
-      scannedRoots: [],
-      updateRepoListAndRoot: vi.fn(),
-    });
-
     render(<App />);
 
     expect(screen.getByTestId("sidebar")).toBeInTheDocument();
   });
 
   it("shows the welcome screen (reposScanned=false) when no repos have been scanned", () => {
-    mockedUsePersistedRepoList.mockReturnValue({
-      repoList: [],
-      scannedRoots: [],
-      updateRepoListAndRoot: vi.fn(),
-    });
-
     render(<App />);
 
     expect(screen.getByTestId("welcome-screen")).toHaveTextContent("false");
@@ -61,11 +57,7 @@ describe("App", () => {
   });
 
   it("shows the welcome screen (reposScanned=true) when repos are scanned but none is selected", () => {
-    mockedUsePersistedRepoList.mockReturnValue({
-      repoList: [REPO],
-      scannedRoots: ["/root"],
-      updateRepoListAndRoot: vi.fn(),
-    });
+    useRepoListStore.setState({ repoList: [REPO], scannedRoots: ["/root"] });
 
     render(<App />);
 
@@ -74,11 +66,7 @@ describe("App", () => {
   });
 
   it("shows the main content once a repo is scanned and selected", () => {
-    mockedUsePersistedRepoList.mockReturnValue({
-      repoList: [REPO],
-      scannedRoots: ["/root"],
-      updateRepoListAndRoot: vi.fn(),
-    });
+    useRepoListStore.setState({ repoList: [REPO], scannedRoots: ["/root"] });
     useSelectedRepoStore.setState({ repo: REPO });
 
     render(<App />);

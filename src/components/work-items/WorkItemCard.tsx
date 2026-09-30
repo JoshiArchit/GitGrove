@@ -1,6 +1,7 @@
+import { ClipboardCheck } from "lucide-react";
 import { useRef, useState } from "react";
 import { resolveWorkItemColor } from "../../resolvers/workItemConfigResolver";
-import { WorkItem } from "../../types/board.types";
+import { TaskStatus, WorkItem } from "../../types/board.types";
 import WorkItemCardExpanded from "./WorkItemCardExpanded";
 
 type WorkItemCardProps = {
@@ -40,14 +41,33 @@ const WorkItemCard = ({ item, index }: WorkItemCardProps) => {
   return (
     <>
       <div
-        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-700 ${itemColor.borderLeft} transition-colors duration-150`}
+        className={`flex w-full items-center gap-2 rounded-lg border-2 border-l-8 border-gray-600 px-4 py-2 hover:cursor-pointer hover:bg-gray-700 ${itemColor.borderLeft} transition-all duration-150 hover:scale-105`}
         onClick={openDialog}
       >
-        <div className="flex w-full flex-col">
-          <span className="text-xs text-gray-600 uppercase">
-          #{index + 1} {item.type}
-          </span>
-          <span>{item.title}</span>
+        <div className="flex w-full flex-col gap-2">
+          <div className="flex items-center justify-between text-xs text-gray-600 uppercase">
+            <span>
+              #{index + 1} {item.type}
+            </span>
+            <span>Tasks completed</span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span>{item.title}</span>
+            {item.tasks.length === 0 ? (
+              <span className="text-gray-500">No tasks</span>
+            ) : (
+              <span className="flex items-center justify-between gap-1">
+                <ClipboardCheck className="text-amber-300" />{" "}
+                {
+                  item.tasks.filter(
+                    (task) => task.status === TaskStatus.Completed,
+                  ).length
+                }
+                /{item.tasks.length}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

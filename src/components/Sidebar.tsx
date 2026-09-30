@@ -1,8 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderCode, FolderGit2, PanelRight, Sprout } from "lucide-react";
+import {
+  FolderCode,
+  FolderGit2,
+  NotebookPen,
+  PanelRight,
+  Sprout,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { useClickOutside } from "../hooks/useClickOutside";
+import { useProjectsStore } from "../stores/projectsStore";
 import { useSelectedRepoStore } from "../stores/selectedRepoStore";
 import { RepoEntry } from "../types/repo.types";
 
@@ -19,6 +26,9 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
   const activeRepo = useSelectedRepoStore((s) => s.repo);
   const [collapsed, setCollapsed] = useState(true);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const openProjects = useProjectsStore((s) => s.openProjects);
+  const closeProjects = useProjectsStore((s) => s.closeProjects);
+  const showProjects = useProjectsStore((s) => s.showProjects);
 
   // Only listens while expanded (!collapsed)
   useClickOutside(sidebarRef, () => setCollapsed(true), !collapsed);
@@ -81,6 +91,8 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
 
   function handleSetActiveRepo(repo: RepoEntry) {
     useSelectedRepoStore.getState().setSelectedRepo(repo);
+    // Close the project section if its open
+    closeProjects();
     setCollapsed(true);
   }
 
@@ -133,6 +145,7 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
             Scan for Repos
           </span>
         </button>
+
         <button
           onClick={() => getRootDirectoryPath(false)}
           title="Add a single repo"
@@ -143,6 +156,19 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
             className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${collapsed ? "w-0 opacity-0" : "ml-2 w-auto opacity-100"}`}
           >
             Add a Repo
+          </span>
+        </button>
+
+        <button
+          onClick={openProjects}
+          title="Open Projects"
+          className={`btn-secondary flex items-center justify-center overflow-hidden text-sm ${collapsed ? "" : "w-full"}`}
+        >
+          <NotebookPen className="shrink-0" />
+          <span
+            className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${collapsed ? "w-0 opacity-0" : "ml-2 w-auto opacity-100"}`}
+          >
+            Projects
           </span>
         </button>
       </section>
@@ -157,7 +183,7 @@ const Sidebar = ({ repoList, updateRepoListAndRoot }: SidebarProps) => {
               return (
                 <li
                   key={repo.name}
-                  className={`transition-color hover: cursor-pointer rounded-lg border border-transparent px-4 py-2 text-sm duration-300 hover:bg-gray-600 ${activeRepo?.name === repo.name ? "bg-blue-600" : ""}`}
+                  className={`transition-color hover: cursor-pointer rounded-lg border border-transparent px-4 py-2 text-sm duration-300 hover:bg-gray-600 ${activeRepo?.name === repo.name && !showProjects ? "bg-blue-600" : ""}`}
 
                   onClick={() => handleSetActiveRepo(repo)}
                 >

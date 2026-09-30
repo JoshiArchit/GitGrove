@@ -36,11 +36,10 @@ beforeEach(() => {
 });
 
 describe("ProjectCard", () => {
-  it("renders the project id, title, and description, and a closed dialog", () => {
-    render(<ProjectCard project={PROJECT} index={1} />);
+  it("renders the project title and description, and a closed dialog", () => {
+    render(<ProjectCard project={PROJECT} />);
 
     const card = within(screen.getByTestId("project-card"));
-    expect(card.getByText("Project 1")).toBeInTheDocument();
     expect(card.getByText("Trail Tracker")).toBeInTheDocument();
     expect(
       card.getByText("Log hikes and elevation stats offline-first."),
@@ -49,7 +48,7 @@ describe("ProjectCard", () => {
   });
 
   it("opens the expanded card dialog when clicked", async () => {
-    render(<ProjectCard project={PROJECT} index={1} />);
+    render(<ProjectCard project={PROJECT} />);
 
     await userEvent.click(screen.getByTestId("project-card"));
 
@@ -58,7 +57,7 @@ describe("ProjectCard", () => {
 
   it("closes without confirmation when there are no unsaved changes", async () => {
     const confirmSpy = vi.spyOn(window, "confirm");
-    render(<ProjectCard project={PROJECT} index={1} />);
+    render(<ProjectCard project={PROJECT} />);
     await userEvent.click(screen.getByTestId("project-card"));
 
     await userEvent.click(screen.getByLabelText("Close"));
@@ -70,7 +69,7 @@ describe("ProjectCard", () => {
 
   it("asks for confirmation before closing dirty changes, and keeps the dialog open on cancel", async () => {
     const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
-    render(<ProjectCard project={PROJECT} index={1} />);
+    render(<ProjectCard project={PROJECT} />);
     await userEvent.click(screen.getByTestId("project-card"));
 
     await userEvent.type(

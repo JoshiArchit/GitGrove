@@ -1,11 +1,16 @@
 import { create } from "zustand";
-import { Task, WorkItem } from "../types/board.types";
+import { Status, Task, WorkItem } from "../types/board.types";
 import { persist } from "zustand/middleware";
 
 type WorkItemBoardStore = {
   boards: Record<string, WorkItem[]>;
   addItem: (repoPath: string, item: WorkItem) => void;
   updateItem: (
+    repoPath: string,
+    id: string,
+    updates: Partial<WorkItem>,
+  ) => void;
+  updateItemStatus: (
     repoPath: string,
     id: string,
     updates: Partial<WorkItem>,
@@ -55,6 +60,24 @@ export const useWorkItemBoardStore = create<WorkItemBoardStore>()(
             ),
           },
         }));
+      },
+
+      updateItemStatus: (repoPath, id, updates) => {
+        set((state) => {
+          const items = state.boards[repoPath] ?? [];
+          const target = items.find((i) => i.id === id);
+          if (!target) return state;
+
+          const rest = items.filter((i) => i.id !== id); // Items that do not need an update
+          const moved = { ...target, ...updates }; // update the item
+
+          return {
+            boards: {
+              ...state.boards,
+              [repoPath]: [...rest, moved], // re-inserted at the end. When filtered by status the item will automatically be at the end of the bucket
+            },
+          };
+        });
       },
 
       deleteItem: (repoPath, id) => {

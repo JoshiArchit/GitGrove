@@ -10,11 +10,7 @@ type WorkItemBoardStore = {
     id: string,
     updates: Partial<WorkItem>,
   ) => void;
-  updateItemStatus: (
-    repoPath: string,
-    id: string,
-    updates: Partial<WorkItem>,
-  ) => void;
+  updateItemStatus: (repoPath: string, id: string, status: Status) => void;
   deleteItem: (repoPath: string, id: string) => void;
   getItems: (repoPath: string) => WorkItem[];
   addTask: (repoPath: string, workItemId: string, task: Task) => void;
@@ -62,14 +58,14 @@ export const useWorkItemBoardStore = create<WorkItemBoardStore>()(
         }));
       },
 
-      updateItemStatus: (repoPath, id, updates) => {
+      updateItemStatus: (repoPath, id, status) => {
         set((state) => {
           const items = state.boards[repoPath] ?? [];
           const target = items.find((i) => i.id === id);
           if (!target) return state;
 
           const rest = items.filter((i) => i.id !== id); // Items that do not need an update
-          const moved = { ...target, ...updates }; // update the item
+          const moved = { ...target, status }; // update the item
 
           return {
             boards: {

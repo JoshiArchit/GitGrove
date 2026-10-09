@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { DragDropProvider } from "@dnd-kit/react";
+import { type ComponentProps, useRef, useState } from "react";
 import { useSelectedRepoStore } from "../../stores/selectedRepoStore";
 import { useWorkItemBoardStore } from "../../stores/workItemBoardStore";
 import { Status } from "../../types/board.types";
@@ -8,6 +9,7 @@ import WorkItemsTable from "../work-items/WorkItemsTable";
 
 const Board = () => {
   const selectedRepo = useSelectedRepoStore((s) => s.repo);
+  const updateItemStatus = useWorkItemBoardStore((s) => s.updateItemStatus);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const closeDialog = () => {
@@ -26,9 +28,29 @@ const Board = () => {
   );
   if (!selectedRepo) return null;
 
-  const newItems = items.filter((i) => i.status === Status.New);
-  const inProgressItems = items.filter((i) => i.status === Status.InProgress);
-  const doneItems = items.filter((i) => i.status === Status.Done);
+  /**
+   * Handle the drag end event from the DragDropProvider.
+   * This function updates the status of a work item when
+   * it is dragged and dropped into a different column.
+   * @param event The drag end event containing information about the source
+   * and target of the drag operation.
+   */
+  const handleDragEnd: ComponentProps<typeof DragDropProvider>["onDragEnd"] = (
+    event,
+  ) => {
+    if (event.canceled) return;
+    const { source, target } = event.operation;
+    if (!source || !target) return; // dropped outside any droppable
+
+    const itemId = String(source.id);
+    const destination = target.id; // the column's id, per BoardColumn's useDroppable({ id: columnStatus })
+    if (!Object.values(Status).includes(destination as Status)) return;
+
+    const item = items.find((i) => i.id === itemId);
+    if (!item || item.status === destination) return; // same-column drop is a no-op
+
+    updateItemStatus(selectedRepo.path, itemId, destination as Status);
+  };
 
   return (
     <section className="flex h-full w-full flex-col gap-4 rounded-lg bg-gray-900 p-4 text-white">
@@ -66,17 +88,20 @@ const Board = () => {
         </div>
         <section className="rounded-b-lg bg-gray-800 p-6">
           {!backlogView && (
-            <div
-              id="board-view"
-              className="flex min-h-32 w-full justify-between gap-4"
-            >
-              <BoardColumn columnStatus={Status.New} workItems={newItems} />
-              <BoardColumn
-                columnStatus={Status.InProgress}
-                workItems={inProgressItems}
-              />
-              <BoardColumn columnStatus={Status.Done} workItems={doneItems} />
-            </div>
+            <DragDropProvider onDragEnd={handleDragEnd}>
+              <div
+                id="board-view"
+                className="flex min-h-32 w-full justify-between gap-4"
+              >
+                {Object.values(Status).map((status) => (
+                  <BoardColumn
+                    key={status}
+                    columnStatus={status}
+                    workItems={items.filter((item) => item.status === status)}
+                  />
+                ))}
+              </div>
+            </DragDropProvider>
           )}
 
           {backlogView && (

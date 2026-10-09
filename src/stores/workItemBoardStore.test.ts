@@ -78,6 +78,89 @@ describe("useWorkItemBoardStore", () => {
     expect(items.find((i) => i.id === "a2")?.title).toBe("Untouched");
   });
 
+  it("updateItemStatus sets the new status and moves the item to the end of the repo's list", () => {
+    const { addItem, updateItemStatus, getItems } =
+      useWorkItemBoardStore.getState();
+    addItem(REPO_A, makeItem({ id: "a1", status: Status.New }));
+    addItem(REPO_A, makeItem({ id: "a2", status: Status.InProgress }));
+    addItem(REPO_A, makeItem({ id: "a3", status: Status.New }));
+
+    updateItemStatus(REPO_A, "a1", Status.InProgress);
+
+    const items = getItems(REPO_A);
+    expect(items.map((i) => i.id)).toEqual(["a2", "a3", "a1"]);
+    expect(items.find((i) => i.id === "a1")?.status).toBe(Status.InProgress);
+  });
+
+  it("updateItemStatus lands the item below existing items of the destination status", () => {
+    const { addItem, updateItemStatus, getItems } =
+      useWorkItemBoardStore.getState();
+    addItem(REPO_A, makeItem({ id: "n1", status: Status.New }));
+    addItem(REPO_A, makeItem({ id: "d1", status: Status.Done }));
+    addItem(REPO_A, makeItem({ id: "d2", status: Status.Done }));
+
+    updateItemStatus(REPO_A, "n1", Status.Done);
+
+    const doneIds = getItems(REPO_A)
+      .filter((i) => i.status === Status.Done)
+      .map((i) => i.id);
+    expect(doneIds).toEqual(["d1", "d2", "n1"]);
+  });
+
+  it("updateItemStatus preserves every other field and the relative order of other items", () => {
+    const { addItem, updateItemStatus, getItems } =
+      useWorkItemBoardStore.getState();
+    const task = makeTask({ id: "t1" });
+    addItem(
+      REPO_A,
+      makeItem({
+        id: "a1",
+        title: "Keep me",
+        description: "desc",
+        tasks: [task],
+      }),
+    );
+    addItem(REPO_A, makeItem({ id: "a2" }));
+    addItem(REPO_A, makeItem({ id: "a3" }));
+
+    updateItemStatus(REPO_A, "a1", Status.Done);
+
+    const items = getItems(REPO_A);
+    expect(items.map((i) => i.id)).toEqual(["a2", "a3", "a1"]);
+    expect(items[2]).toMatchObject({
+      title: "Keep me",
+      description: "desc",
+      tasks: [task],
+      status: Status.Done,
+    });
+  });
+
+  it("updateItemStatus does not touch other repos", () => {
+    const { addItem, updateItemStatus, getItems } =
+      useWorkItemBoardStore.getState();
+    addItem(REPO_A, makeItem({ id: "a1" }));
+    addItem(REPO_B, makeItem({ id: "b1" }));
+    addItem(REPO_B, makeItem({ id: "b2" }));
+    const before = getItems(REPO_B);
+
+    updateItemStatus(REPO_A, "a1", Status.Done);
+
+    expect(getItems(REPO_B)).toBe(before);
+  });
+
+  it("updateItemStatus is a no-op for an unknown id or a repo with no board", () => {
+    const { addItem, updateItemStatus, getItems } =
+      useWorkItemBoardStore.getState();
+    addItem(REPO_A, makeItem({ id: "a1" }));
+    const before = getItems(REPO_A);
+
+    updateItemStatus(REPO_A, "missing", Status.Done);
+    updateItemStatus("/repos/unknown", "a1", Status.Done);
+
+    expect(getItems(REPO_A)).toBe(before);
+    expect(getItems("/repos/unknown")).toEqual([]);
+  });
+
   it("deleteItem removes only the matching item", () => {
     const { addItem, deleteItem, getItems } = useWorkItemBoardStore.getState();
     addItem(REPO_A, makeItem({ id: "a1" }));

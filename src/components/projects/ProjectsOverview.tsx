@@ -1,9 +1,10 @@
+import { DragDropProvider } from "@dnd-kit/react";
 import { Info } from "lucide-react";
 import { motion } from "motion/react";
-import React, { useRef, useState } from "react";
+import React, { type ComponentProps, useRef, useState } from "react";
 import { useProjectsStore } from "../../stores/projectsStore";
 import { ProjectStatus } from "../../types/project.types";
-import ProjectCard from "./ProjectCard";
+import ProjectColumn from "./ProjectColumn";
 import ProjectForm from "./ProjectForm";
 
 const ProjectsOverview = () => {
@@ -11,10 +12,29 @@ const ProjectsOverview = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isProjectFormDirty, setIsProjectFormDirty] = useState(false);
+  const updateProjectStatus = useProjectsStore((s) => s.updateProjectStatus);
 
   const closeDialog = () => {
     dialogRef.current?.close();
     setIsFormOpen(false);
+  };
+
+  const handleDragEnd: ComponentProps<typeof DragDropProvider>["onDragEnd"] = (
+    event,
+  ) => {
+    if (event.canceled) return;
+    const { source, target } = event.operation;
+    if (!source || !target) return; // dropped outside any droppable
+
+    const itemId = Number(source.id);
+    const destination = target.id; // the column's id, per ProjectColumn's useDroppable({ id: status })
+    if (!Object.values(ProjectStatus).includes(destination as ProjectStatus))
+      return;
+
+    const item = projects.find((i) => i.projectId === itemId);
+    if (!item || item.status === destination) return; // same-column drop is a no-op
+
+    updateProjectStatus(itemId, destination as ProjectStatus);
   };
 
   function openProjectFormDialog() {
@@ -75,31 +95,16 @@ const ProjectsOverview = () => {
 
         <section className="flex flex-wrap items-center justify-center gap-4">
           {/* TODO: Add a helper tooltip to show what each status means */}
-          {STATUS_SECTIONS.map(({ status, label }) => {
-            const sectionProjects = projects.filter((p) => p.status === status);
-
-            return (
-              <div
+          <DragDropProvider onDragEnd={handleDragEnd}>
+            {STATUS_SECTIONS.map(({ status, label }) => (
+              <ProjectColumn
                 key={status}
-                className="flex flex-col items-stretch gap-2 not-last:border-r-2 not-last:border-white/10 not-last:pr-4"
-              >
-                <span className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
-                  {label}
-                </span>
-                {sectionProjects.length === 0 ? (
-                  <span className="text-sm font-semibold tracking-tight text-gray-600 uppercase">
-                    No projects for this category
-                  </span>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {sectionProjects.map((item) => (
-                      <ProjectCard key={item.projectId} project={item} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                status={status}
+                label={label}
+                projects={projects.filter((p) => p.status === status)}
+              />
+            ))}
+          </DragDropProvider>
         </section>
       </section>
 

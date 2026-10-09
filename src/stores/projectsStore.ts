@@ -9,6 +9,7 @@ type projectsStore = {
   projects: Project[];
   addProject: (project: Project) => void;
   updateProject: (id: number, updates: Partial<Project>) => void;
+  updateProjectStatus: (id: number, status: Project["status"]) => void;
   deleteProject: (id: number) => void;
   getProjects: () => Project[];
 };
@@ -47,6 +48,14 @@ export const useProjectsStore = create<projectsStore>()(
         set((state) => ({
           projects: state.projects.map((p) =>
             p.projectId === id ? { ...p, ...updates } : p,
+          ),
+        }));
+      },
+
+      updateProjectStatus: (id, status) => {
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.projectId === id ? { ...p, status } : p,
           ),
         }));
       },

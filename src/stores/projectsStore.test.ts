@@ -80,6 +80,52 @@ describe("useProjectsStore", () => {
     expect(getProjects().map((p) => p.projectId)).toEqual([2]);
   });
 
+  it("updateProjectStatus sets the status of the matching project only", () => {
+    const { addProject, updateProjectStatus, getProjects } =
+      useProjectsStore.getState();
+    addProject(makeProject({ projectId: 1, status: ProjectStatus.Idea }));
+    addProject(makeProject({ projectId: 2, status: ProjectStatus.Idea }));
+
+    updateProjectStatus(1, ProjectStatus.Deployed);
+
+    const projects = getProjects();
+    expect(projects.find((p) => p.projectId === 1)?.status).toBe(
+      ProjectStatus.Deployed,
+    );
+    expect(projects.find((p) => p.projectId === 2)?.status).toBe(
+      ProjectStatus.Idea,
+    );
+  });
+
+  it("updateProjectStatus keeps the project's position and other fields", () => {
+    const { addProject, updateProjectStatus, getProjects } =
+      useProjectsStore.getState();
+    addProject(
+      makeProject({ projectId: 1, title: "Keep me", description: "d" }),
+    );
+    addProject(makeProject({ projectId: 2 }));
+
+    updateProjectStatus(1, ProjectStatus.InTest);
+
+    const projects = getProjects();
+    expect(projects.map((p) => p.projectId)).toEqual([1, 2]);
+    expect(projects[0]).toMatchObject({
+      title: "Keep me",
+      description: "d",
+      status: ProjectStatus.InTest,
+    });
+  });
+
+  it("updateProjectStatus is a no-op when the project doesn't exist", () => {
+    const { addProject, updateProjectStatus, getProjects } =
+      useProjectsStore.getState();
+    addProject(makeProject({ projectId: 1 }));
+
+    updateProjectStatus(999, ProjectStatus.Deployed);
+
+    expect(getProjects()).toEqual([makeProject({ projectId: 1 })]);
+  });
+
   it("updateProject and deleteProject are no-ops when the project doesn't exist", () => {
     const { addProject, updateProject, deleteProject, getProjects } =
       useProjectsStore.getState();

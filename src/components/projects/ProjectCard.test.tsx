@@ -36,6 +36,12 @@ beforeEach(() => {
 });
 
 describe("ProjectCard", () => {
+  it("does not leak a stray '$' into the card's class list", () => {
+    render(<ProjectCard project={PROJECT} />);
+
+    expect(screen.getByTestId("project-card").className).not.toContain("$");
+  });
+
   it("renders the project title and description, and a closed dialog", () => {
     render(<ProjectCard project={PROJECT} />);
 

@@ -1,3 +1,4 @@
+import { useDraggable } from "@dnd-kit/react";
 import { useRef, useState } from "react";
 import { Project } from "../../types/project.types";
 import ProjectCardExpanded from "./ProjectCardExpanded";
@@ -7,6 +8,7 @@ type ProjectCardProps = {
 };
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
+  const { ref, isDragging } = useDraggable({ id: project.projectId });
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [instanceKey, setInstanceKey] = useState(0);
@@ -38,7 +40,8 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
       <div
         onClick={openDialog}
         data-testid="project-card"
-        className="shadow-card-elevation-2 flex h-40 w-3xs flex-col gap-2 rounded-lg border border-l-4 border-gray-800 border-l-purple-400 bg-black px-6 py-4 text-white transition-all duration-150 hover:scale-110 hover:rotate-5 hover:cursor-pointer hover:bg-indigo-950"
+        ref={ref}
+        className={`shadow-card-elevation-2 flex h-40 w-3xs flex-col gap-2 rounded-lg border border-l-4 border-gray-800 border-l-purple-400 bg-black px-6 py-4 text-white transition-all duration-150 hover:scale-110 hover:rotate-5 hover:cursor-pointer hover:bg-indigo-950 ${isDragging ? "opacity-80" : ""}`}
       >
         {/* TODO: Show a stable human-facing display id here once one exists
             (e.g. a per-scope monotonic displayId, or the future SQL

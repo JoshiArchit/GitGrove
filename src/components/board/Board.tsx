@@ -53,7 +53,7 @@ const Board = () => {
   };
 
   return (
-    <section className="flex h-full w-full flex-col gap-4 rounded-lg bg-gray-900 p-4 text-white">
+    <section className="flex w-full grow flex-col gap-4 rounded-lg bg-gray-900 p-4 text-white">
       <section className="flex flex-col items-center justify-between gap-4">
         <h1 className="text-xl tracking-widest uppercase">Tasks</h1>
         <button

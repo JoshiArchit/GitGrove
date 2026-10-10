@@ -67,7 +67,7 @@ const ProjectsOverview = () => {
       transition={{ duration: 0.3 }}
       className="absolute inset-0 flex flex-col gap-3 pr-3"
     >
-      <section className="flex min-h-full grow flex-col items-center justify-start gap-8 rounded-xl bg-gray-900 p-4">
+      <section className="flex grow flex-col items-center justify-start gap-8 rounded-xl bg-gray-900 p-4">
         <div className="flex w-full justify-center tracking-tight text-white uppercase">
           Projects
         </div>
